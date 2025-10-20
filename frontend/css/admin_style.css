@@ -1,0 +1,693 @@
+/* Reset básico e configurações globais */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #1a202c;
+    color: #edf2f7;
+}
+
+/* Container de login (página de login) */
+.form-container {
+    background-color: #2d3748;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    border: 1px solid #4a5568;
+}
+
+/* Apenas na página de login, o body é centrado */
+body:not(.dashboard-body) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Cabeçalho do formulário de login */
+.form-header {
+    margin-bottom: 30px;
+}
+
+.form-header h1 {
+    font-size: 24px;
+    margin-bottom: 8px;
+    color: #ffffff;
+}
+
+.form-header p {
+    font-size: 16px;
+    color: #a0aec0;
+}
+
+/* Grupos de input (partilhado) */
+.input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #cbd5e0;
+}
+
+.input-group input,
+.input-group select,
+.input-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background-color: #1a202c;
+    border: 1px solid #4a5568;
+    color: #edf2f7;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.4);
+}
+
+/* Botão de login */
+.btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(90deg, #4299e1, #3182ce);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Mensagens de feedback */
+#message {
+    margin-top: 20px;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.message.error {
+    background-color: #9b2c2c;
+    color: #fed7d7;
+}
+
+.message.success {
+    background-color: #2f855a;
+    color: #c6f6d5;
+}
+
+
+/* --- ESTILOS PARA O DASHBOARD --- */
+
+.dashboard-body {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 260px;
+    background-color: #2d3748;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #4a5568;
+}
+
+.sidebar-header {
+    padding: 24px;
+    text-align: center;
+    border-bottom: 1px solid #4a5568;
+}
+
+.sidebar-header h2 {
+    color: #fff;
+}
+
+.sidebar-header span {
+    color: #718096;
+    font-size: 14px;
+}
+
+.sidebar-nav {
+    flex-grow: 1;
+    padding: 16px 0;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 24px;
+    color: #a0aec0;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s, color 0.2s;
+    cursor: pointer;
+}
+
+.nav-item .icon {
+    margin-right: 12px;
+    font-size: 20px;
+}
+
+.nav-item:hover {
+    background-color: #4a5568;
+    color: #fff;
+}
+
+.nav-item.active {
+    background-color: #4299e1;
+    color: #fff;
+}
+
+.sidebar-footer {
+    padding: 24px;
+    border-top: 1px solid #4a5568;
+}
+
+.logout-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: transparent;
+    border: 1px solid #e53e3e;
+    color: #e53e3e;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.logout-btn:hover {
+    background-color: #e53e3e;
+    color: #fff;
+}
+
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #1a202c;
+}
+
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid #4a5568;
+}
+
+.main-header h1 {
+    font-size: 28px;
+}
+
+.user-profile {
+    font-size: 16px;
+    color: #a0aec0;
+}
+
+.content-area {
+    padding: 24px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.admin-only {
+    display: none;
+}
+
+
+/* --- ESTILOS PARA CONTEÚDO DINÂMICO --- */
+
+.page-header, .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.content-section {
+    margin-bottom: 32px;
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, #4299e1, #3182ce);
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.table-container {
+    background-color: #2d3748;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-container table th, .table-container table td {
+    padding: 16px;
+    text-align: left;
+    border-bottom: 1px solid #4a5568;
+}
+
+.table-container table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-container table th {
+    background-color: #4a5568;
+    color: #fff;
+    font-weight: 600;
+}
+
+.table-container table tbody tr:hover {
+    background-color: #4a5568;
+}
+
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.role-master { background-color: #c53030; color: #fff; }
+.role-gestao { background-color: #dd6b20; color: #fff; }
+.role-estetica { background-color: #3182ce; color: #fff; }
+.status-active { background-color: #38a169; color: #fff; }
+.status-inactive { background-color: #718096; color: #fff; }
+
+.action-buttons button {
+    margin-right: 8px;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.1s;
+}
+.action-buttons button:hover {
+    transform: scale(1.05);
+}
+.btn-edit { background-color: #dd6b20; color: #fff; }
+.btn-delete { background-color: #c53030; color: #fff; }
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-overlay.hidden { display: none; }
+
+.modal-content {
+    background-color: #2d3748;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-content.large {
+    max-width: 700px;
+}
+
+.modal-content form {
+    overflow-y: auto;
+    padding-right: 10px; /* para a barra de scroll */
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+}
+.checkbox-group input {
+    width: auto;
+    margin-right: 10px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #4a5568;
+}
+
+.btn-secondary {
+    background-color: #4a5568;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Checkbox list para seleção de roteadores no modal */
+.checkbox-list {
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #1a202c;
+    border: 1px solid #4a5568;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+/* --- AJUSTE NO CHECKBOX-ITEM PARA TEMA ESCURO --- */
+.checkbox-item {
+    display: grid; /* Usar grid para alinhar colunas */
+    grid-template-columns: auto 1fr auto; /* Checkbox | Nome | Descrição */
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.checkbox-item:hover {
+    background-color: #2d3748;
+}
+
+.checkbox-item input[type="checkbox"] {
+    margin: 0;
+    width: 18px;
+    height: 18px;
+}
+.checkbox-item-text {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Garante que o texto não quebre o layout */
+}
+
+.checkbox-item label {
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.checkbox-item-name {
+    font-weight: 600;
+    color: #edf2f7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.checkbox-item-description {
+    font-size: 13px;
+    color: #a0aec0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- ESTILOS PARA STATUS DO ROTEADOR --- */
+.status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.status-online {
+    background-color: #38a169; /* Verde */
+}
+.status-offline {
+    background-color: #e53e3e; /* Vermelho */
+}
+
+
+/* --- ESTILOS PARA BANNERS --- */
+.hidden {
+    display: none !important;
+}
+
+.radio-group {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.radio-group label {
+    margin-bottom: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.radio-group input[type="radio"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: #1a202c;
+    margin: 0;
+    margin-right: 8px;
+    font: inherit;
+    color: #4a5568;
+    width: 1.25em;
+    height: 1.25em;
+    border: 0.15em solid #4a5568;
+    border-radius: 50%;
+    transform: translateY(-0.075em);
+    display: grid;
+    place-content: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+.radio-group input[type="radio"]:hover {
+    border-color: #4299e1;
+}
+.radio-group input[type="radio"]::before {
+    content: "";
+    width: 0.75em;
+    height: 0.75em;
+    border-radius: 50%;
+    transform: scale(0);
+    transition: 120ms transform ease-in-out;
+    box-shadow: inset 1em 1em #4299e1;
+}
+.radio-group input[type="radio"]:checked::before {
+    transform: scale(1);
+}
+.radio-group input[type="radio"]:checked {
+    border-color: #4299e1;
+}
+
+
+.image-preview-container {
+    width: 100%;
+    min-height: 100px;
+    background-color: #1a202c;
+    border: 2px dashed #4a5568;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.image-preview-container img {
+    max-width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+}
+
+#previewPlaceholder {
+    color: #718096;
+    font-weight: 500;
+}
+
+input[type="file"] {
+    background-color: #4a5568;
+    border: none;
+    color: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+input[type="file"]::file-selector-button {
+    background-color: #4299e1;
+    border: none;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+/* --- ESTILOS PARA O DASHBOARD (HOME) --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.stat-card {
+    background-color: #2d3748;
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border: 1px solid #4a5568;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+}
+
+.stat-card-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-card-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #a0aec0;
+    margin-bottom: 4px;
+}
+
+.stat-card-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.quick-links {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.quick-link-btn {
+    background-color: #4a5568;
+    color: #fff;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    transition: background-color 0.2s;
+}
+
+.quick-link-btn:hover {
+    background-color: #4299e1;
+}
+
+/* --- ESTILOS PARA A PÁGINA HOTSPOT --- */
+.filter-container {
+    background-color: #2d3748;
+    padding: 24px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+    border-top: 1px solid #4a5568;
+    padding-top: 24px;
+}
+
+.export-buttons {
+    display: flex;
+    gap: 16px;
+}
+
+.results-summary {
+    margin-top: 16px;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: right;
+}
+

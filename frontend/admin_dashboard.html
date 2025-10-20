@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Rota Hotspot Admin</title>
+    <link rel="stylesheet" href="css/admin_style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Biblioteca para exportação para Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body class="dashboard-body">
+
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Grupo Brasileiro</h2>
+            <span>Admin</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-page="admin_home">
+                <span class="icon">🏠</span> Dashboard
+            </a>
+            <a href="#" class="nav-item" data-page="admin_hotspot">
+                <span class="icon">🔍</span> Hotspot
+            </a>
+            <a href="#" class="nav-item" data-page="admin_templates">
+                <span class="icon">🎨</span> Templates
+            </a>
+            <a href="#" class="nav-item" data-page="admin_banners">
+                <span class="icon">📢</span> Banners
+            </a>
+            <a href="#" class="nav-item" data-page="admin_campaigns">
+                <span class="icon">🎯</span> Campanhas
+            </a>
+            <a href="#" class="nav-item" data-page="admin_routers">
+                <span class="icon">📡</span> Roteadores
+            </a>
+            <a href="#" class="nav-item admin-only" data-page="admin_users">
+                <span class="icon">👥</span> Utilizadores
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="logoutButton" class="logout-btn">
+                <span class="icon">🚪</span> Sair
+            </button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="main-header">
+            <h1 id="pageTitle">Dashboard</h1>
+            <div class="user-profile">
+                Bem-vindo, <strong id="userName">...</strong>
+            </div>
+        </header>
+        <div class="content-area">
+            <!-- O conteúdo é carregado aqui -->
+        </div>
+    </main>
+
+    <!-- Scripts das páginas -->
+    <script src="js/admin_home.js"></script>
+    <script src="js/admin_hotspot.js"></script>
+    <script src="js/admin_users.js"></script>
+    <script src="js/admin_templates.js"></script>
+    <script src="js/admin_banners.js"></script> 
+    <script src="js/admin_campaigns.js"></script>
+    <script src="js/admin_routers.js"></script>
+    
+    <!-- Script "Maestro" -->
+    <script src="js/admin_dashboard.js"></script>
+</body>
+</html>
+
