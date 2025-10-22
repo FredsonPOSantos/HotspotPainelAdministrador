@@ -83,7 +83,25 @@ const searchUsers = async (req, res) => {
     }
 };
 
-module.exports = {
-    searchUsers
+// [NOVO] Função para contar o total de utilizadores do hotspot (para o Dashboard)
+const getTotalHotspotUsers = async (req, res) => {
+  try {
+    // Query otimizada para apenas contar os registos
+    const result = await pool.query('SELECT COUNT(id) FROM userdetails'); 
+    
+    // Garante que o resultado é um número
+    const count = parseInt(result.rows[0].count, 10) || 0;
+    
+    res.json({ count });
+  } catch (error) {
+    console.error('Erro ao contar utilizadores do hotspot:', error);
+    res.status(500).json({ message: "Erro interno do servidor." });
+  }
 };
 
+
+// [MODIFICADO] Exporta a nova função
+module.exports = {
+    searchUsers,
+    getTotalHotspotUsers 
+};

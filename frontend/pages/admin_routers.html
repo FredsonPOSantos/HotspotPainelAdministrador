@@ -1,7 +1,32 @@
 <!-- Ficheiro: pages/admin_routers.html -->
 
+<!-- [ADICIONADO] Cartões de Estatísticas (Movidos do Dashboard) -->
+<div class="stats-grid">
+    <!-- Cartão Total de Roteadores -->
+    <div class="stat-card">
+        <div class="stat-card-icon" style="background-color: #3182ce;">
+            <span>📡</span>
+        </div>
+        <div class="stat-card-info">
+            <span class="stat-card-title">Total de Roteadores</span>
+            <span class="stat-card-value" id="totalRouters">...</span>
+        </div>
+    </div>
+
+    <!-- Cartão Total de Grupos -->
+    <div class="stat-card">
+        <div class="stat-card-icon" style="background-color: #dd6b20;">
+            <span>📦</span>
+        </div>
+        <div class="stat-card-info">
+            <span class="stat-card-title">Grupos Criados</span>
+            <span class="stat-card-value" id="totalGroups">...</span>
+        </div>
+    </div>
+</div>
+
 <!-- Secção de Grupos -->
-<div class="content-section">
+<div class="content-section" style="margin-top: 2rem;">
     <div class="section-header">
         <h3>Grupos de Roteadores</h3>
         <button id="addGroupBtn" class="btn-primary">Adicionar Grupo</button>
@@ -133,3 +158,4 @@
         </form>
     </div>
 </div>
+

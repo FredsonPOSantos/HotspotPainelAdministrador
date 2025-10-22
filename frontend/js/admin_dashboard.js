@@ -2,7 +2,11 @@
 
 const apiRequest = async (endpoint, method = 'GET', body = null) => {
     const token = localStorage.getItem('adminToken');
-    const API_ADMIN_URL = 'http://localhost:3000'; 
+    
+    // [CORRIGIDO] Constrói a URL do backend dinamicamente.
+    // Ele vai usar http://127.0.0.1:3000 ou http://172.16.12.239:3000
+    // baseado em como você acedeu a página.
+    const API_ADMIN_URL = `${window.location.protocol}//${window.location.hostname}:3000`; 
 
     const options = {
         method,
@@ -16,10 +20,19 @@ const apiRequest = async (endpoint, method = 'GET', body = null) => {
 
     const response = await fetch(`${API_ADMIN_URL}${endpoint}`, options);
 
-    if (response.status === 401 || response.status === 403) {
+    // [CORRIGIDO] Trata 401 (Não Autenticado) como um erro fatal que força o logout.
+    if (response.status === 401) {
         localStorage.removeItem('adminToken');
         window.location.href = 'admin_login.html';
-        throw new Error('Não autorizado.');
+        throw new Error('Sessão expirada. Por favor, faça login novamente.');
+    }
+
+    // [CORRIGIDO] Trata 403 (Não Autorizado/Proibido) como um erro de permissão,
+    // mas NÃO desloga. Apenas rejeita a promessa para o .catch() da página lidar.
+    if (response.status === 403) {
+        // Tenta ler a mensagem de erro da API, se houver
+        const dataError = await response.json().catch(() => ({ message: 'Acesso negado.' }));
+        throw new Error(dataError.message || 'Acesso negado. Você não tem permissão para esta ação.');
     }
 
     const data = await response.json();
@@ -33,6 +46,8 @@ const apiRequest = async (endpoint, method = 'GET', body = null) => {
 
 // Disponibiliza a função loadPage globalmente para os atalhos rápidos
 let loadPageExternal;
+// [NOVO] Disponibiliza o perfil do utilizador globalmente para outros scripts
+window.currentUserProfile = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('adminToken');
@@ -49,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const pageInitializers = {
         'admin_home': window.initHomePage,
-        'admin_hotspot': window.initHotspotPage, // NOVO
+        'admin_hotspot': window.initHotspotPage,
         'admin_users': window.initUsersPage,
         'admin_templates': window.initTemplatesPage,
         'admin_banners': window.initBannersPage,
@@ -74,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const initFunction = pageInitializers[pageName];
             if (typeof initFunction === 'function') {
-                setTimeout(initFunction, 0);
+                setTimeout(initFunction, 0); // Executa a inicialização após o HTML ser renderizado
             } else {
                 console.warn(`Função de inicialização para a página '${pageName}' não encontrada.`);
             }
@@ -85,21 +100,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    loadPageExternal = loadPage;
+    loadPageExternal = loadPage; // Disponibiliza a função globalmente
 
     const fetchUserProfile = async () => {
         try {
             const data = await apiRequest('/api/admin/profile');
+            window.currentUserProfile = data.profile; // [MODIFICADO] Guarda o perfil completo
+
             if (userNameElement) {
-                userNameElement.textContent = data.profile.email;
+                userNameElement.textContent = window.currentUserProfile.email; // [MODIFICADO] Usa a nova variável
             }
-            if (data.profile.role === 'master' || data.profile.role === 'gestao') {
+            
+            // [MODIFICADO] Usa a nova variável global e verifica se ela existe
+            if (window.currentUserProfile && (window.currentUserProfile.role === 'master' || window.currentUserProfile.role === 'gestao')) {
                 document.querySelectorAll('.admin-only').forEach(el => {
                     el.style.display = 'flex';
                 });
             }
         } catch (error) {
             console.error("Falha ao buscar perfil:", error.message);
+            // Se falhar o fetchUserProfile (ex: token antigo), o apiRequest já tratou o logout
         }
     };
 
@@ -120,11 +140,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    fetchUserProfile();
+    // Ações de inicialização
+    fetchUserProfile(); // Busca o perfil primeiro
 
     const homeLink = document.querySelector('[data-page="admin_home"]');
     if (homeLink) {
-        loadPage('admin_home', homeLink);
+        loadPage('admin_home', homeLink); // Carrega a página inicial
     }
 });
 

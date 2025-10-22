@@ -22,6 +22,10 @@ if (window.initRoutersPage) {
         const discoverModal = document.getElementById('discoverModal');
         const discoverForm = document.getElementById('discoverForm');
         
+        // [ADICIONADO] Elementos dos Cartões de Estatísticas
+        const totalRoutersCard = document.getElementById('totalRouters');
+        const totalGroupsCard = document.getElementById('totalGroups');
+        
         let allRouters = [];
         let allGroups = [];
 
@@ -29,14 +33,27 @@ if (window.initRoutersPage) {
 
         const loadPageData = async () => {
             try {
+                // [MODIFICADO] Adicionado "A carregar..." aos cartões
+                totalRoutersCard.textContent = '...';
+                totalGroupsCard.textContent = '...';
+
                 [allGroups, allRouters] = await Promise.all([
                     apiRequest('/api/routers/groups'),
                     apiRequest('/api/routers')
                 ]);
+
+                // [ADICIONADO] Atualiza os cartões de estatísticas
+                totalRoutersCard.textContent = allRouters.length;
+                totalGroupsCard.textContent = allGroups.length;
+
+                // Continua a carregar o resto da página
                 displayGroups();
                 displayRouters();
             } catch (error) {
                 console.error("Erro ao carregar dados da página:", error);
+                // [ADICIONADO] Define "Erro" nos cartões se falhar
+                totalRoutersCard.textContent = 'Erro';
+                totalGroupsCard.textContent = 'Erro';
             }
         };
 
@@ -48,11 +65,13 @@ if (window.initRoutersPage) {
             }
             allGroups.forEach(group => {
                 const row = document.createElement('tr');
+                // [MODIFICADO] router_count agora vem da API de grupos
+                const routerCount = allRouters.filter(r => r.group_id === group.id).length;
                 row.innerHTML = `
                     <td>${group.id}</td>
                     <td>${group.name}</td>
                     <td>${group.observacao || 'N/A'}</td>
-                    <td>${group.router_count}</td>
+                    <td>${routerCount}</td> 
                     <td class="action-buttons">
                         <button class="btn-edit" onclick="openModalForEditGroup(${group.id})">Editar</button>
                         <button class="btn-delete" onclick="handleDeleteGroup(${group.id})">Eliminar</button>
@@ -106,7 +125,7 @@ if (window.initRoutersPage) {
             const routerId = document.getElementById('routerId').value;
             const routerData = { 
                 observacao: document.getElementById('routerDescription').value,
-                ip_address: document.getElementById('routerIpAddress').value // Envia o IP
+                ip_address: document.getElementById('routerIpAddress').value || null // Envia o IP
             };
             try {
                 const result = await apiRequest(`/api/routers/${routerId}`, 'PUT', routerData);
@@ -132,25 +151,42 @@ if (window.initRoutersPage) {
         };
 
 
-                // --- NOVA LÓGICA DE VERIFICAÇÃO DE STATUS ---
+        // --- NOVA LÓGICA DE VERIFICAÇÃO DE STATUS ---
         const handleCheckAllStatus = async () => {
             checkStatusBtn.disabled = true;
             checkStatusBtn.textContent = 'A verificar...';
 
             // Percorre cada linha da tabela para atualizar o status individualmente
             const rows = routersTableBody.querySelectorAll('tr');
+            if (rows.length === 0) {
+                 checkStatusBtn.disabled = false;
+                 checkStatusBtn.textContent = 'Verificar Status';
+                 alert('Nenhum roteador para verificar.');
+                 return;
+            }
+
             for (const row of rows) {
-                const routerId = row.querySelector('.btn-edit')?.getAttribute('onclick').match(/\d+/)[0];
+                // Tenta extrair o ID do roteador da linha
+                const idCell = row.cells[0];
+                const routerId = parseInt(idCell.textContent, 10);
+                
                 if (!routerId) continue;
                 
-                const statusCell = row.children[2];
+                const statusCell = row.cells[2];
                 statusCell.innerHTML = 'Verificando...';
 
                 try {
+                    // Atualiza o objeto 'router' na cache 'allRouters'
+                    const routerInCache = allRouters.find(r => r.id === routerId);
                     const result = await apiRequest(`/api/routers/${routerId}/ping`, 'POST');
+                    
                     statusCell.innerHTML = `<span class="status-dot status-${result.status}"></span> ${result.status}`;
+                    if (routerInCache) routerInCache.status = result.status; // Atualiza cache
+
                 } catch (error) {
                     statusCell.innerHTML = `<span class="status-dot status-offline"></span> erro`;
+                    const routerInCache = allRouters.find(r => r.id === routerId);
+                    if (routerInCache) routerInCache.status = 'offline'; // Atualiza cache
                 }
             }
             
@@ -198,7 +234,8 @@ if (window.initRoutersPage) {
                 alert(result.message);
                 discoverModal.classList.add('hidden');
                 loadPageData();
-            } catch (error) {
+            } catch (error)
+ {
                 alert(`Erro ao adicionar roteadores: ${error.message}`);
             }
         };
@@ -225,14 +262,16 @@ if (window.initRoutersPage) {
         const loadRoutersIntoGroupModal = (currentGroupRouters = []) => {
             const routerListDiv = document.getElementById('routerListForGroup');
             routerListDiv.innerHTML = '';
+            // Roteadores disponíveis são os que não têm grupo (group_id == null)
+            // OU os que já estão neste grupo (currentGroupRouters)
             const availableRouters = allRouters.filter(r => r.group_id === null || currentGroupRouters.includes(r.id));
+            
             if (availableRouters.length === 0) {
-                 routerListDiv.innerHTML = '<p>Nenhum roteador disponível para adicionar ao grupo.</p>';
+                 routerListDiv.innerHTML = '<p>Nenhum roteador disponível para adicionar ao grupo (todos os roteadores já pertencem a outros grupos).</p>';
                  return;
             }
             availableRouters.forEach(router => {
                 const isChecked = currentGroupRouters.includes(router.id) ? 'checked' : '';
-                // --- ALTERAÇÃO: Estrutura HTML simplificada para melhor alinhamento ---
                 const itemHTML = `
                     <label class="checkbox-item" for="group-router-${router.id}">
                         <input type="checkbox" id="group-router-${router.id}" name="routerIds" value="${router.id}" ${isChecked}>
@@ -251,22 +290,23 @@ if (window.initRoutersPage) {
             const groupId = document.getElementById('groupId').value;
             const selectedCheckboxes = groupModal.querySelectorAll('input[name="routerIds"]:checked');
             const routerIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
-            if (!groupId && routerIds.length < 2) {
-                alert("Para criar um novo grupo, selecione pelo menos 2 roteadores.");
-                return;
-            }
+            
+            // [MODIFICADO] A validação de 2 roteadores foi removida para permitir grupos vazios ou com 1.
+            
             const groupData = {
                 name: document.getElementById('groupName').value,
                 observacao: document.getElementById('groupDescription').value,
-                routerIds
+                routerIds // Envia a lista de IDs de roteadores para o backend
             };
+            
             const method = groupId ? 'PUT' : 'POST';
             const endpoint = groupId ? `/api/routers/groups/${groupId}` : '/api/routers/groups';
+            
             try {
                 const result = await apiRequest(endpoint, method, groupData);
                 alert(result.message);
                 groupModal.classList.add('hidden');
-                loadPageData();
+                loadPageData(); // Recarrega tudo
             } catch (error) {
                 alert(`Erro: ${error.message}`);
             }
@@ -280,6 +320,7 @@ if (window.initRoutersPage) {
             handlePrefixChange();
             loadRoutersIntoGroupModal();
             groupModal.classList.remove('hidden');
+
         };
 
         window.openModalForEditGroup = (groupId) => {
@@ -292,13 +333,14 @@ if (window.initRoutersPage) {
             document.getElementById('groupDescription').value = group.observacao;
             document.getElementById('groupPrefix').value = '';
             document.getElementById('groupPrefix').disabled = true;
+            // Carrega os roteadores que pertencem a este grupo
             const currentGroupRouters = allRouters.filter(r => r.group_id === groupId).map(r => r.id);
             loadRoutersIntoGroupModal(currentGroupRouters);
             groupModal.classList.remove('hidden');
         };
 
         window.handleDeleteGroup = async (groupId) => {
-            if (confirm('Tem a certeza de que deseja eliminar este grupo? Os roteadores associados não serão eliminados.')) {
+            if (confirm('Tem a certeza de que deseja eliminar este grupo? Os roteadores associados não serão eliminados, ficarão apenas "Sem Grupo".')) {
                 try {
                     const result = await apiRequest(`/api/routers/groups/${groupId}`, 'DELETE');
                     alert(result.message);

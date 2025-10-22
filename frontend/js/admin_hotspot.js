@@ -3,7 +3,7 @@ if (window.initHotspotPage) {
     console.warn("Tentativa de carregar admin_hotspot.js múltiplas vezes.");
 } else {
     window.initHotspotPage = () => {
-        console.log("A inicializar a página de Relatórios do Hotspot...");
+        console.log("A inicializar a página de Relatórios do Hotspot (V2 - com verificação de função)...");
 
         // --- ELEMENTOS DO DOM ---
         const filterForm = document.getElementById('hotspotFilterForm');
@@ -18,32 +18,70 @@ if (window.initHotspotPage) {
 
         // --- FUNÇÕES DE INICIALIZAÇÃO ---
 
+        // [MODIFICADO] A função agora verifica a função (role) do utilizador
         const populateFilters = async () => {
+            // Garante que o perfil do utilizador foi carregado
+            if (!window.currentUserProfile) {
+                console.warn("Perfil do utilizador não encontrado em initHotspotPage. A aguardar...");
+                // Tenta novamente após um curto período, caso o fetchUserProfile ainda não tenha terminado
+                setTimeout(populateFilters, 500);
+                return;
+            }
+
+            const userRole = window.currentUserProfile.role;
+            const routerSelect = document.getElementById('routerFilter');
+            const groupSelect = document.getElementById('groupFilter');
+            const campaignSelect = document.getElementById('campaignFilter');
+            
+            // Seletores dos containers dos filtros (para esconder se for 'estetica')
+            const routerFilterGroup = document.getElementById('routerFilterGroup');
+            const groupFilterGroup = document.getElementById('groupFilterGroup');
+
+
             try {
-                const [routers, groups, campaigns] = await Promise.all([
-                    apiRequest('/api/routers'),
-                    apiRequest('/api/routers/groups'),
-                    apiRequest('/api/campaigns')
-                ]);
+                // Utilizadores 'master' e 'gestao' veem todos os filtros
+                if (userRole === 'master' || userRole === 'gestao') {
+                    const [routers, groups, campaigns] = await Promise.all([
+                        apiRequest('/api/routers'),
+                        apiRequest('/api/routers/groups'),
+                        apiRequest('/api/campaigns')
+                    ]);
 
-                const routerSelect = document.getElementById('routerFilter');
-                routers.forEach(r => {
-                    routerSelect.innerHTML += `<option value="${r.id}">${r.name}</option>`;
-                });
+                    routers.forEach(r => {
+                        routerSelect.innerHTML += `<option value="${r.id}">${r.name}</option>`;
+                    });
 
-                const groupSelect = document.getElementById('groupFilter');
-                groups.forEach(g => {
-                    groupSelect.innerHTML += `<option value="${g.id}">${g.name}</option>`;
-                });
+                    groups.forEach(g => {
+                        groupSelect.innerHTML += `<option value="${g.id}">${g.name}</option>`;
+                    });
 
-                const campaignSelect = document.getElementById('campaignFilter');
-                campaigns.forEach(c => {
-                    campaignSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-                });
+                    campaigns.forEach(c => {
+                        campaignSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                    });
+                }
+                // Utilizador 'estetica' vê apenas o filtro de campanhas
+                else if (userRole === 'estetica') {
+                    
+                    // Esconde e desativa os filtros de router e grupo
+                    if (routerFilterGroup) routerFilterGroup.style.display = 'none';
+                    if (routerSelect) routerSelect.disabled = true;
+                    
+                    if (groupFilterGroup) groupFilterGroup.style.display = 'none';
+                    if (groupSelect) groupSelect.disabled = true;
+
+                    // Busca apenas as campanhas (que 'estetica' tem permissão)
+                    const campaigns = await apiRequest('/api/campaigns');
+                    campaigns.forEach(c => {
+                        campaignSelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                    });
+                }
 
             } catch (error) {
+                // Este erro não deve mais acontecer para 'estetica', pois evitamos a chamada
                 console.error("Erro ao popular filtros:", error);
-                alert("Não foi possível carregar os filtros. Tente recarregar a página.");
+                if (!error.message.includes("Acesso negado")) {
+                    alert("Não foi possível carregar os filtros. Tente recarregar a página.");
+                }
             }
         };
 
@@ -63,15 +101,17 @@ if (window.initHotspotPage) {
             };
 
             for (const fieldId in fieldMapping) {
-                const value = document.getElementById(fieldId).value;
-                if (value) {
-                    params.append(fieldMapping[fieldId], value);
+                // [MODIFICADO] Verifica se o elemento existe E não está desativado
+                const element = document.getElementById(fieldId);
+                if (element && element.value && !element.disabled) {
+                    params.append(fieldMapping[fieldId], element.value);
                 }
             }
 
             resultsBody.innerHTML = `<tr><td colspan="10" style="text-align:center;">A pesquisar...</td></tr>`;
 
             try {
+                // A rota /api/hotspot/users já foi corrigida no backend para aceitar 'estetica'
                 const results = await apiRequest(`/api/hotspot/users?${params.toString()}`);
                 currentResults = results; // Guarda os resultados para exportação
                 displayResults(results);
@@ -152,6 +192,11 @@ if (window.initHotspotPage) {
         filterForm.addEventListener('submit', handleSearch);
         clearFiltersBtn.addEventListener('click', () => {
             filterForm.reset();
+            // Re-habilita e limpa filtros que podem ter sido desativados
+            if (window.currentUserProfile && window.currentUserProfile.role !== 'estetica') {
+                 if (document.getElementById('routerFilter')) document.getElementById('routerFilter').disabled = false;
+                 if (document.getElementById('groupFilter')) document.getElementById('groupFilter').disabled = false;
+            }
             currentResults = [];
             displayResults([]);
         });
