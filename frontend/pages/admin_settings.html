@@ -1,0 +1,81 @@
+<!-- Ficheiro: pages/admin_settings.html -->
+<!-- Estrutura base para a Fase 2.1 -->
+
+<div class="page-header">
+    <h3>Configurações do Sistema</h3>
+</div>
+
+<!-- Navegação em Abas -->
+<nav class="tab-nav">
+    <button class="tab-link active" data-tab="tab-perfil">Meu Perfil</button>
+    <button class="tab-link admin-only" data-tab="tab-geral">Geral</button>
+    <button class="tab-link admin-only" data-tab="tab-hotspot">Portal Hotspot</button>
+    <button class="tab-link admin-only" data-tab="tab-permissoes">Funções e Permissões</button>
+    <button class="tab-link admin-only" data-tab="tab-logs">Logs de Atividade</button>
+    <button class="tab-link admin-only" data-tab="tab-lgpd">Gestão LGPD</button>
+</nav>
+
+<!-- Conteúdo das Abas -->
+<div class="tab-content-container">
+    
+    <!-- Aba 1: Meu Perfil (Fase 2.2) -->
+    <div id="tab-perfil" class="tab-content active">
+        <div class="content-section">
+            <div class="section-header">
+                <h4>Alterar Minha Senha</h4>
+            </div>
+            <p style="margin-top: 10px;">(Fase 2.2) - O formulário para alterar a própria senha (voluntariamente) será implementado aqui.</p>
+        </div>
+    </div>
+
+    <!-- Aba 2: Geral (Fase 2.3) -->
+    <div id="tab-geral" class="tab-content admin-only">
+        <div class="content-section">
+            <div class="section-header">
+                <h4>Configurações Gerais da Empresa</h4>
+            </div>
+            <p style="margin-top: 10px;">(Fase 2.3) - A gestão de Logótipo e Cores do painel será implementada aqui.</p>
+        </div>
+    </div>
+
+    <!-- Aba 3: Portal Hotspot (Fase 2.4) -->
+    <div id="tab-hotspot" class="tab-content admin-only">
+        <div class="content-section">
+            <div class="section-header">
+                <h4>Configurações do Portal Hotspot</h4>
+            </div>
+            <p style="margin-top: 10px;">(Fase 2.4) - A gestão de Tempo de Sessão e Whitelist de Domínios será implementada aqui.</p>
+        </div>
+    </div>
+
+    <!-- Aba 4: Funções e Permissões (Fase 3.1) -->
+    <div id="tab-permissoes" class="tab-content admin-only">
+        <div class="content-section">
+            <div class="section-header">
+                <h4>Funções e Permissões</h4>
+            </div>
+            <p style="margin-top: 10px;">(Fase 3.1) - A matriz visual de permissões será implementada aqui.</p>
+        </div>
+    </div>
+
+    <!-- Aba 5: Logs de Atividade (Fase 3.2) -->
+    <div id="tab-logs" class="tab-content admin-only">
+        <div class="content-section">
+            <div class="section-header">
+                <h4>Logs de Atividade do Painel</h4>
+            </div>
+            <p style="margin-top: 10px;">(Fase 3.2) - O visualizador de logs de auditoria será implementado aqui.</p>
+        </div>
+    </div>
+
+    <!-- Aba 6: Gestão LGPD (Fase 3.3) -->
+    <div id="tab-lgpd" class="tab-content admin-only">
+        <div class="content-section">
+            <div class="section-header">
+                <h4>Gestão de Exclusão de Dados (LGPD)</h4>
+            </div>
+            <p style="margin-top: 10px;">(Fase 3.3) - A interface para gerir pedidos de exclusão de dados será implementada aqui.</p>
+        </div>
+    </div>
+
+</div>

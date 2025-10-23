@@ -38,6 +38,7 @@
             <a href="#" class="nav-item admin-only" data-page="admin_users">
                 <span class="icon">👥</span> Utilizadores
             </a>
+            <!-- [NOTA] Adicionar o link de Configurações da Fase 2 aqui quando estiver pronto -->
         </nav>
         <div class="sidebar-footer">
             <button id="logoutButton" class="logout-btn">
@@ -57,6 +58,34 @@
             <!-- O conteúdo é carregado aqui -->
         </div>
     </main>
+
+    <!-- [NOVO] Modal de Troca de Senha Obrigatória -->
+    <div id="forceChangePasswordModal" class="modal-overlay hidden" style="z-index: 9998; background-color: rgba(0, 0, 0, 0.8);">
+        <div class="modal-content" style="z-index: 9999;">
+            <!-- SEM BOTÃO DE FECHAR -->
+            <h3>Troca de Senha Obrigatória</h3>
+            <p>A sua senha foi resetada por um administrador. Por motivos de segurança, você deve definir uma nova senha agora para continuar.</p>
+            
+            <form id="forceChangePasswordForm" style="margin-top: 20px;">
+                <div class="input-group">
+                    <label for="currentTemporaryPassword">Senha Temporária (Atual)</label>
+                    <input type="password" id="currentTemporaryPassword" required>
+                </div>
+                <div class="input-group">
+                    <label for="newPassword">Nova Senha (mín. 6 caracteres)</label>
+                    <input type="password" id="newPassword" required minlength="6">
+                </div>
+                
+                <p id="forceChangePasswordError" style="color: #c53030; font-size: 0.9em; margin-top: 10px;"></p>
+                <p id="forceChangePasswordSuccess" style="color: #38a169; font-size: 0.9em; margin-top: 10px;"></p>
+    
+                <div class="modal-actions" style="margin-top: 20px;">
+                    <button type="submit" class="btn-primary">Alterar Senha e Desbloquear</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 
     <!-- Scripts das páginas -->
     <script src="js/admin_home.js"></script>

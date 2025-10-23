@@ -1,4 +1,6 @@
 // Ficheiro: middlewares/uploadMiddleware.js
+// [FICHEIRO INALTERADO - Válido]
+
 const multer = require('multer');
 const path = require('path');
 
