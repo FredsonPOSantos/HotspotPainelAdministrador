@@ -1,5 +1,5 @@
 <!-- Ficheiro: pages/admin_settings.html -->
-<!-- [ATUALIZADO - Fase 3.1: Estrutura Matriz Permissões] -->
+<!-- [ATUALIZADO - Fase 2.4: Portal Hotspot] -->
 
 <div class="page-header">
     <h3>Configurações do Sistema</h3>
@@ -8,6 +8,7 @@
 <!-- Navegação em Abas -->
 <nav class="tab-nav">
     <button class="tab-link active" data-tab="tab-perfil">Meu Perfil</button>
+    <!-- [ATUALIZADO V8] Adicionado master-only para clareza -->
     <button class="tab-link admin-only master-only" data-tab="tab-geral">Geral</button>
     <button class="tab-link admin-only master-only" data-tab="tab-hotspot">Portal Hotspot</button>
     <button class="tab-link admin-only master-only" data-tab="tab-permissoes">Funções e Permissões</button>
@@ -45,6 +46,7 @@
     </div>
 
     <!-- Aba 2: Geral (Fase 2.3 - Concluída) -->
+    <!-- [ATUALIZADO V8] Adicionado master-only -->
     <div id="tab-geral" class="tab-content admin-only master-only">
         <div class="content-section">
             <div class="section-header">
@@ -59,11 +61,11 @@
                     <label for="logoUpload">Logótipo Principal (Opcional)</label>
                     <input type="file" id="logoUpload" name="logoFile" accept="image/png, image/jpeg, image/gif, image/svg+xml">
                     <small>Selecione um ficheiro para substituir o logótipo atual.</small>
-                     <img id="currentLogoPreview" src="#" alt="Logótipo Atual" style="max-height: 60px; margin-top: 15px; display: none; background-color: #4a5568; padding: 5px; border-radius: 4px; border: 1px solid #718096;">
+                     <img id="currentLogoPreview" src="#" alt="Logótipo Atual" style="max-height: 50px; margin-top: 10px; display: none;">
                 </div>
                  <div class="input-group">
                     <label for="primaryColor">Cor de Destaque</label>
-                    <input type="color" id="primaryColor" value="#3182CE">
+                    <input type="color" id="primaryColor" value="#3182CE"> <!-- Valor padrão -->
                     <small>Selecione a cor principal usada no painel.</small>
                 </div>
                 <p id="generalSettingsError" class="form-message error"></p>
@@ -74,6 +76,7 @@
     </div>
 
     <!-- Aba 3: Portal Hotspot (Fase 2.4 - Concluída) -->
+    <!-- [ATUALIZADO V8] Adicionado master-only -->
     <div id="tab-hotspot" class="tab-content admin-only master-only">
         <div class="content-section">
             <div class="section-header">
@@ -83,12 +86,12 @@
                 <div class="input-group">
                     <label for="sessionTimeoutMinutes">Tempo de Sessão Padrão (minutos)</label>
                     <input type="number" id="sessionTimeoutMinutes" min="1" placeholder="Ex: 120">
-                    <small>Tempo máximo antes de reautenticação. Deixe em branco para usar o padrão do sistema.</small>
+                    <small>Tempo máximo que um utilizador pode ficar conectado ao hotspot antes de precisar autenticar novamente.</small>
                 </div>
                 <div class="input-group">
                     <label for="domainWhitelist">Whitelist de Domínios (um por linha)</label>
                     <textarea id="domainWhitelist" rows="6" placeholder="Ex:\nrotatransportes.com.br\nwww.google.com"></textarea>
-                    <small>Domínios acessíveis antes do login no portal.</small>
+                    <small>Domínios que os utilizadores podem aceder *antes* de fazer login no portal.</small>
                 </div>
                 <p id="hotspotSettingsError" class="form-message error"></p>
                 <p id="hotspotSettingsSuccess" class="form-message success"></p>
@@ -97,42 +100,19 @@
         </div>
     </div>
 
-    <!-- Aba 4: Funções e Permissões (Fase 3.1 - Iniciada) -->
+    <!-- Aba 4: Funções e Permissões (Fase 3.1) -->
+    <!-- [ATUALIZADO V8] Adicionado master-only -->
     <div id="tab-permissoes" class="tab-content admin-only master-only">
         <div class="content-section">
              <div class="section-header">
                 <h4>Funções e Permissões</h4>
-                <!-- Futuramente: Botão para editar permissões? -->
             </div>
-            <p style="margin-bottom: 15px; color: var(--text-secondary);">Visualize as permissões atribuídas a cada função do sistema.</p>
-
-            <!-- Tabela da Matriz de Permissões -->
-            <div class="table-container permissions-matrix"> <!-- Adicionada classe 'permissions-matrix' -->
-                <table id="permissionsTable">
-                    <thead>
-                        <tr>
-                            <th>Funcionalidade</th>
-                            <th>Master</th>
-                            <th>Gestão</th>
-                            <th>Estética</th>
-                            <th>DPO</th>
-                            <!-- Adicionar novas roles aqui -->
-                        </tr>
-                    </thead>
-                    <tbody id="permissionsTableBody">
-                        <!-- Linhas serão preenchidas via JS -->
-                        <tr><td colspan="5" style="text-align: center;">A carregar permissões...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-             <p id="permissionsError" class="form-message error"></p>
-             <p id="permissionsSuccess" class="form-message success"></p>
-             <!-- Futuramente: Botão para salvar alterações -->
-             <!-- <button id="savePermissionsBtn" class="btn-primary" style="margin-top: 20px;">Salvar Alterações</button> -->
+            <p style="margin-top: 10px;">(Fase 3.1) - A matriz visual de permissões será implementada aqui.</p>
         </div>
     </div>
 
     <!-- Aba 5: Logs de Atividade (Fase 3.2) -->
+    <!-- [ATUALIZADO V8] Adicionado master-only -->
     <div id="tab-logs" class="tab-content admin-only master-only">
         <div class="content-section">
             <div class="section-header">
@@ -143,6 +123,7 @@
     </div>
 
     <!-- Aba 6: Gestão LGPD (Fase 3.3) -->
+    <!-- [ATUALIZADO V8] Adicionado master-only -->
     <div id="tab-lgpd" class="tab-content admin-only master-only">
         <div class="content-section">
              <div class="section-header">

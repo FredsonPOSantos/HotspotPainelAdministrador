@@ -92,6 +92,9 @@ body:not(.dashboard-body) { display: flex; justify-content: center; align-items:
 .user-profile { font-size: 14px; color: var(--text-secondary); } .user-profile strong { color: #fff; }
 .content-area { padding: 24px; flex-grow: 1; overflow-y: auto; }
 
+/* [REMOVIDO V13] A regra .admin-only { display: none; } foi removida daqui */
+
+
 /* --- CONTEÚDO DINÂMICO --- */
 .page-header, .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); }
 .page-header h3, .section-header h3, .section-header h4 { color: #fff; font-size: 18px; font-weight: 600; }
@@ -105,7 +108,7 @@ body:not(.dashboard-body) { display: flex; justify-content: center; align-items:
 .table-container table { width: 100%; border-collapse: collapse; white-space: nowrap; }
 .table-container table th, .table-container table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
 .table-container table tbody tr:last-child td { border-bottom: none; }
-.table-container table th { background-color: var(--background-dark); color: var(--text-tertiary); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; position: sticky; top: 0; /* Fixa cabeçalho no scroll */ z-index: 1;}
+.table-container table th { background-color: var(--background-dark); color: var(--text-tertiary); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; position: sticky; top: 0; z-index: 1;}
 .table-container table tbody tr { transition: background-color 0.15s; }
 .table-container table tbody tr:hover { background-color: var(--background-light); }
 
@@ -190,8 +193,8 @@ input[type="file"]::file-selector-button { background-color: var(--primary-color
 .tab-link:hover { color: #fff; }
 .tab-link.active { color: var(--primary-color, #4299e1); border-bottom-color: var(--primary-color, #4299e1); }
 .tab-content-container { /* Sem estilo específico */ }
-.tab-content { display: none; }
-.tab-content.active { display: block; animation: fadeIn 0.5s; }
+.tab-content { display: none; } /* Escondido por padrão */
+.tab-content.active { display: block; animation: fadeIn 0.5s; } /* Mostra ativo com fade */
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* Formulário Settings */
@@ -213,10 +216,12 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 6px; }
     left: 0;
     background-color: var(--background-dark); /* Fundo igual ao header */
     z-index: 1;
+    border-right: 1px solid var(--border-color); /* Linha divisória */
 }
 .permissions-matrix table th {
      text-align: center; /* Centraliza roles */
      white-space: nowrap;
+     min-width: 100px; /* Largura mínima para roles */
 }
 .permissions-matrix table td {
     text-align: center; /* Centraliza permissões */
@@ -232,6 +237,6 @@ input[type="color"]::-webkit-color-swatch { border: none; border-radius: 6px; }
 .permissions-matrix td.perm-none { background-color: var(--perm-none-bg); color: #718096; } /* Texto mais apagado */
 
 /* Garante que itens escondidos pelo JS não ocupem espaço */
-/* [REMOVIDO V13.1] Não é mais necessário !important com CSS limpo */
+/* [REVISADO V13] Não precisa de !important com CSS limpo */
 [style*="display: none"] { display: none; }
 
