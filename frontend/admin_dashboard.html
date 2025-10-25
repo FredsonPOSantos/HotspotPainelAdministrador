@@ -4,24 +4,54 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Rota Hotspot Admin</title>
-    <link rel="stylesheet" href="css/admin_style.css">
+    <link rel="stylesheet" href="css/admin_style.css"> <!-- Carrega o CSS V13 -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Biblioteca para exportação para Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- Estilos inline (mantidos da sua versão anterior) -->
+    <style>
+        .sidebar-nav .nav-title {
+            padding: 10px 24px 5px; /* Ajustado padding */
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #a0aec0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 15px; /* Aumentado espaço */
+        }
+        .sidebar-nav .nav-title:first-of-type {
+             margin-top: 0;
+         }
+        /* Garante que itens escondidos pelo JS não ocupem espaço */
+        [style*="display: none"] { display: none !important; }
+    </style>
 </head>
 <body class="dashboard-body">
 
     <aside class="sidebar">
         <div class="sidebar-header">
+            <!-- [NOVO V13] Adicionada a tag para o logo -->
+            <img id="sidebarLogo" src="#" alt="Logótipo" style="display: none;">
+            <!-- O H2 será escondido pelo JS se o logo for carregado -->
             <h2>Grupo Brasileiro</h2>
             <span>Admin</span>
         </div>
+
+        <!-- Menu Organizado com Grupos -->
         <nav class="sidebar-nav">
+
+            <h4 class="nav-title">Geral</h4>
             <a href="#" class="nav-item active" data-page="admin_home">
                 <span class="icon">🏠</span> Dashboard
             </a>
             <a href="#" class="nav-item" data-page="admin_hotspot">
                 <span class="icon">🔍</span> Hotspot
+            </a>
+
+            <h4 class="nav-title">Portal (Marketing)</h4>
+            <a href="#" class="nav-item" data-page="admin_campaigns">
+                <span class="icon">🎯</span> Campanhas
             </a>
             <a href="#" class="nav-item" data-page="admin_templates">
                 <span class="icon">🎨</span> Templates
@@ -29,17 +59,23 @@
             <a href="#" class="nav-item" data-page="admin_banners">
                 <span class="icon">📢</span> Banners
             </a>
-            <a href="#" class="nav-item" data-page="admin_campaigns">
-                <span class="icon">🎯</span> Campanhas
-            </a>
+
+            <!-- Título da seção Administração com admin-only -->
+            <h4 class="nav-title admin-only">Administração</h4>
             <a href="#" class="nav-item admin-only" data-page="admin_routers">
                 <span class="icon">📡</span> Roteadores
             </a>
             <a href="#" class="nav-item admin-only" data-page="admin_users">
                 <span class="icon">👥</span> Utilizadores
             </a>
-            <!-- [NOTA] Adicionar o link de Configurações da Fase 2 aqui quando estiver pronto -->
+
+            <h4 class="nav-title">Sistema</h4>
+            <!-- Link para Configurações -->
+            <a href="#" class="nav-item" data-page="admin_settings">
+                <span class="icon">⚙️</span> Configurações
+            </a>
         </nav>
+
         <div class="sidebar-footer">
             <button id="logoutButton" class="logout-btn">
                 <span class="icon">🚪</span> Sair
@@ -59,13 +95,11 @@
         </div>
     </main>
 
-    <!-- [NOVO] Modal de Troca de Senha Obrigatória -->
+    <!-- Modal de Troca de Senha Obrigatória -->
     <div id="forceChangePasswordModal" class="modal-overlay hidden" style="z-index: 9998; background-color: rgba(0, 0, 0, 0.8);">
         <div class="modal-content" style="z-index: 9999;">
-            <!-- SEM BOTÃO DE FECHAR -->
             <h3>Troca de Senha Obrigatória</h3>
-            <p>A sua senha foi resetada por um administrador. Por motivos de segurança, você deve definir uma nova senha agora para continuar.</p>
-            
+            <p>A sua senha foi resetada por um administrador...</p>
             <form id="forceChangePasswordForm" style="margin-top: 20px;">
                 <div class="input-group">
                     <label for="currentTemporaryPassword">Senha Temporária (Atual)</label>
@@ -75,10 +109,8 @@
                     <label for="newPassword">Nova Senha (mín. 6 caracteres)</label>
                     <input type="password" id="newPassword" required minlength="6">
                 </div>
-                
-                <p id="forceChangePasswordError" style="color: #c53030; font-size: 0.9em; margin-top: 10px;"></p>
-                <p id="forceChangePasswordSuccess" style="color: #38a169; font-size: 0.9em; margin-top: 10px;"></p>
-    
+                <p id="forceChangePasswordError" class="form-message error"></p>
+                <p id="forceChangePasswordSuccess" class="form-message success"></p>
                 <div class="modal-actions" style="margin-top: 20px;">
                     <button type="submit" class="btn-primary">Alterar Senha e Desbloquear</button>
                 </div>
@@ -86,18 +118,18 @@
         </div>
     </div>
 
-
-    <!-- Scripts das páginas -->
+    <!-- Scripts das páginas individuais (carregados pelo dashboard.js) -->
     <script src="js/admin_home.js"></script>
     <script src="js/admin_hotspot.js"></script>
     <script src="js/admin_users.js"></script>
     <script src="js/admin_templates.js"></script>
-    <script src="js/admin_banners.js"></script> 
+    <script src="js/admin_banners.js"></script>
     <script src="js/admin_campaigns.js"></script>
     <script src="js/admin_routers.js"></script>
-    
-    <!-- Script "Maestro" -->
-    <script src="js/admin_dashboard.js"></script>
+    <script src="js/admin_settings.js"></script>
+
+    <!-- Script "Maestro" - Carregado por último -->
+    <script src="js/admin_dashboard.js"></script> <!-- Carrega o JS V13 -->
 </body>
 </html>
 
