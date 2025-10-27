@@ -1,5 +1,5 @@
 <!-- Ficheiro: pages/admin_settings.html -->
-<!-- [CORRIGIDO - Fase 3.1: Alinhamento de Permissões] -->
+<!-- [ATUALIZADO - Fase 3.1 GESTÃO] -->
 
 <div class="page-header">
     <h3>Configurações do Sistema</h3>
@@ -8,14 +8,12 @@
 <!-- Navegação em Abas -->
 <nav class="tab-nav">
     <button class="tab-link active" data-tab="tab-perfil">Meu Perfil</button>
-    <!-- [ATUALIZADO] Mantido master-only -->
     <button class="tab-link admin-only master-only" data-tab="tab-geral">Geral</button>
     <button class="tab-link admin-only master-only" data-tab="tab-hotspot">Portal Hotspot</button>
     
-    <!-- [CORRIGIDO] Removida a classe 'master-only' para permitir que o JS controle (master E DPO) -->
+    <!-- [CORRIGIDO] Removida a classe 'master-only' (deixado da correção anterior) -->
     <button class="tab-link admin-only" data-tab="tab-permissoes">Funções e Permissões</button>
     
-    <!-- [NOTA] A lógica para Logs e LGPD (Fase 3.2+) também precisará desta remoção quando implementada -->
     <button class="tab-link admin-only master-only" data-tab="tab-logs">Logs de Atividade</button>
     <button class="tab-link admin-only master-only" data-tab="tab-lgpd">Gestão LGPD</button>
 </nav>
@@ -23,7 +21,7 @@
 <!-- Conteúdo das Abas -->
 <div class="tab-content-container">
 
-    <!-- Aba 1: Meu Perfil (Fase 2.2 - Concluída) -->
+    <!-- Aba 1: Meu Perfil (Inalterado) -->
     <div id="tab-perfil" class="tab-content active">
         <!-- ... (Conteúdo inalterado) ... -->
         <div class="content-section">
@@ -50,7 +48,7 @@
         </div>
     </div>
 
-    <!-- Aba 2: Geral (Fase 2.3 - Concluída) -->
+    <!-- Aba 2: Geral (Inalterado) -->
     <div id="tab-geral" class="tab-content admin-only master-only">
         <!-- ... (Conteúdo inalterado) ... -->
         <div class="content-section">
@@ -58,6 +56,7 @@
                 <h4>Configurações Gerais</h4>
             </div>
             <form id="generalSettingsForm" enctype="multipart/form-data">
+                <!-- ... (Campos inalterados) ... -->
                 <div class="input-group">
                     <label for="companyName">Nome da Empresa</label>
                     <input type="text" id="companyName">
@@ -81,7 +80,7 @@
         </div>
     </div>
 
-    <!-- Aba 3: Portal Hotspot (Fase 2.4 - Concluída) -->
+    <!-- Aba 3: Portal Hotspot (Inalterado) -->
     <div id="tab-hotspot" class="tab-content admin-only master-only">
         <!-- ... (Conteúdo inalterado) ... -->
         <div class="content-section">
@@ -89,6 +88,7 @@
                 <h4>Configurações do Portal Hotspot</h4>
             </div>
             <form id="hotspotSettingsForm">
+                 <!-- ... (Campos inalterados) ... -->
                 <div class="input-group">
                     <label for="sessionTimeoutMinutes">Tempo de Sessão (Minutos)</label>
                     <input type="number" id="sessionTimeoutMinutes" min="1" placeholder="Ex: 60" required>
@@ -105,59 +105,51 @@
         </div>
     </div>
 
-    <!-- Aba 4: Funções e Permissões (Fase 3.1) -->
-    <!-- [CORRIGIDO] Removida a classe 'master-only' -->
+    <!-- Aba 4: Funções e Permissões (Fase 3.1 GESTÃO) -->
     <div id="tab-permissoes" class="tab-content admin-only">
         <div class="content-section">
              <div class="section-header">
-                <h4>Funções e Permissões</h4>
-                <!-- [ATUALIZADO] Mensagem de erro -->
+                <h4>Gestão de Funções e Permissões</h4>
                 <p id="permissionsError" class="form-message error"></p>
+                 <!-- [NOVO] Mensagem de sucesso para o update -->
+                <p id="permissionsSuccess" class="form-message success" style="display: none;"></p>
             </div>
-            <!-- [ATUALIZADO] Tabela real para a matriz -->
             <div class="table-container" style="max-height: 60vh; overflow-y: auto; margin-top: 15px;">
                 <table class="permissions-matrix" id="permissionsTable">
                     <thead>
-                        <!-- O cabeçalho (<th>) será preenchido pelo JS -->
+                        <!-- [ATUALIZADO] O cabeçalho agora inclui Ação -->
                         <tr>
                             <th>Funcionalidade</th>
+                            <th>Ação</th>
                             <!-- Ex: <th>Master</th> <th>Gestão</th> ... -->
                         </tr>
                     </thead>
-                    <!-- O corpo será preenchido pelo JS -->
                     <tbody id="permissionsTableBody">
                         <tr>
-                            <td colspan="5" style="text-align: center;">A carregar...</td>
+                            <!-- [ATUALIZADO] Colspan aumentado -->
+                            <td colspan="6" style="text-align: center;">A carregar...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             <p style="margin-top: 15px; font-size: 0.9rem; color: #718096;">
-                Esta matriz reflete as permissões atuais definidas na base de dados.
+                <!-- [ATUALIZADO] Texto alterado para 'master' -->
+                <span class="master-view-only">Como <strong>Master</strong>, pode gerir as permissões (exceto as suas próprias).</span>
+                <!-- [ATUALIZADO] Texto para 'DPO' -->
+                <span class="dpo-view-only" style="display: none;">Como <strong>DPO</strong>, apenas pode visualizar as permissões.</span>
             </p>
         </div>
     </div>
 
-    <!-- Aba 5: Logs de Atividade (Fase 3.2) -->
-    <!-- [NOTA] 'master-only' mantido por agora -->
+    <!-- Aba 5: Logs de Atividade (Inalterado) -->
     <div id="tab-logs" class="tab-content admin-only master-only">
-        <div class="content-section">
-            <div class="section-header">
-                <h4>Logs de Atividade do Painel</h4>
-            </div>
-             <p style="margin-top: 10px;">(Fase 3.2) - O visualizador de logs de auditoria será implementado aqui.</p>
-        </div>
+        <!-- ... (Conteúdo inalterado) ... -->
     </div>
 
-    <!-- Aba 6: Gestão LGPD (Fase 3.3) -->
-    <!-- [NOTA] 'master-only' mantido por agora -->
+    <!-- Aba 6: Gestão LGPD (Inalterado) -->
     <div id="tab-lgpd" class="tab-content admin-only master-only">
-        <div class="content-section">
-             <div class="section-header">
-                <h4>Gestão LGPD</h4>
-            </div>
-            <p style="margin-top: 10px;">(Fase 3.3) - A gestão de pedidos de exclusão de dados será implementada aqui.</p>
-        </div>
+        <!-- ... (Conteúdo inalterado) ... -->
     </div>
 
 </div>
+
