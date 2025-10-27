@@ -1,5 +1,5 @@
 <!-- Ficheiro: pages/admin_settings.html -->
-<!-- [ATUALIZADO - Fase 2.4: Portal Hotspot] -->
+<!-- [CORRIGIDO - Fase 3.1: Alinhamento de Permissões] -->
 
 <div class="page-header">
     <h3>Configurações do Sistema</h3>
@@ -8,10 +8,14 @@
 <!-- Navegação em Abas -->
 <nav class="tab-nav">
     <button class="tab-link active" data-tab="tab-perfil">Meu Perfil</button>
-    <!-- [ATUALIZADO V8] Adicionado master-only para clareza -->
+    <!-- [ATUALIZADO] Mantido master-only -->
     <button class="tab-link admin-only master-only" data-tab="tab-geral">Geral</button>
     <button class="tab-link admin-only master-only" data-tab="tab-hotspot">Portal Hotspot</button>
-    <button class="tab-link admin-only master-only" data-tab="tab-permissoes">Funções e Permissões</button>
+    
+    <!-- [CORRIGIDO] Removida a classe 'master-only' para permitir que o JS controle (master E DPO) -->
+    <button class="tab-link admin-only" data-tab="tab-permissoes">Funções e Permissões</button>
+    
+    <!-- [NOTA] A lógica para Logs e LGPD (Fase 3.2+) também precisará desta remoção quando implementada -->
     <button class="tab-link admin-only master-only" data-tab="tab-logs">Logs de Atividade</button>
     <button class="tab-link admin-only master-only" data-tab="tab-lgpd">Gestão LGPD</button>
 </nav>
@@ -21,11 +25,12 @@
 
     <!-- Aba 1: Meu Perfil (Fase 2.2 - Concluída) -->
     <div id="tab-perfil" class="tab-content active">
+        <!-- ... (Conteúdo inalterado) ... -->
         <div class="content-section">
             <div class="section-header">
                 <h4>Alterar Minha Senha (Voluntariamente)</h4>
             </div>
-            <form id="changeOwnPasswordForm" class="settings-form">
+            <form id="changeOwnPasswordForm">
                 <div class="input-group">
                     <label for="currentPassword">Senha Atual</label>
                     <input type="password" id="currentPassword" required>
@@ -46,27 +51,28 @@
     </div>
 
     <!-- Aba 2: Geral (Fase 2.3 - Concluída) -->
-    <!-- [ATUALIZADO V8] Adicionado master-only -->
     <div id="tab-geral" class="tab-content admin-only master-only">
+        <!-- ... (Conteúdo inalterado) ... -->
         <div class="content-section">
             <div class="section-header">
-                <h4>Configurações Gerais da Empresa</h4>
+                <h4>Configurações Gerais</h4>
             </div>
-            <form id="generalSettingsForm" class="settings-form" enctype="multipart/form-data">
-                 <div class="input-group">
+            <form id="generalSettingsForm" enctype="multipart/form-data">
+                <div class="input-group">
                     <label for="companyName">Nome da Empresa</label>
                     <input type="text" id="companyName">
                 </div>
                 <div class="input-group">
-                    <label for="logoUpload">Logótipo Principal (Opcional)</label>
-                    <input type="file" id="logoUpload" name="logoFile" accept="image/png, image/jpeg, image/gif, image/svg+xml">
-                    <small>Selecione um ficheiro para substituir o logótipo atual.</small>
-                     <img id="currentLogoPreview" src="#" alt="Logótipo Atual" style="max-height: 50px; margin-top: 10px; display: none;">
+                    <label for="logoUpload">Logótipo (.png, .jpg, .svg)</label>
+                    <input type="file" id="logoUpload" accept="image/png, image/jpeg, image/svg+xml">
                 </div>
-                 <div class="input-group">
-                    <label for="primaryColor">Cor de Destaque</label>
-                    <input type="color" id="primaryColor" value="#3182CE"> <!-- Valor padrão -->
-                    <small>Selecione a cor principal usada no painel.</small>
+                <div class="input-group">
+                    <label>Logótipo Atual:</label>
+                    <img id="currentLogoPreview" src="#" alt="Logótipo Atual" style="display: none; max-width: 200px; max-height: 80px; margin-top: 10px; background-color: #f4f4f4; padding: 5px; border-radius: 5px;">
+                </div>
+                <div class="input-group">
+                    <label for="primaryColor">Cor Primária (Hex)</label>
+                    <input type="color" id="primaryColor" value="#3182CE" style="width: 100px; height: 40px;">
                 </div>
                 <p id="generalSettingsError" class="form-message error"></p>
                 <p id="generalSettingsSuccess" class="form-message success"></p>
@@ -76,22 +82,21 @@
     </div>
 
     <!-- Aba 3: Portal Hotspot (Fase 2.4 - Concluída) -->
-    <!-- [ATUALIZADO V8] Adicionado master-only -->
     <div id="tab-hotspot" class="tab-content admin-only master-only">
+        <!-- ... (Conteúdo inalterado) ... -->
         <div class="content-section">
             <div class="section-header">
                 <h4>Configurações do Portal Hotspot</h4>
             </div>
-            <form id="hotspotSettingsForm" class="settings-form">
+            <form id="hotspotSettingsForm">
                 <div class="input-group">
-                    <label for="sessionTimeoutMinutes">Tempo de Sessão Padrão (minutos)</label>
-                    <input type="number" id="sessionTimeoutMinutes" min="1" placeholder="Ex: 120">
-                    <small>Tempo máximo que um utilizador pode ficar conectado ao hotspot antes de precisar autenticar novamente.</small>
+                    <label for="sessionTimeoutMinutes">Tempo de Sessão (Minutos)</label>
+                    <input type="number" id="sessionTimeoutMinutes" min="1" placeholder="Ex: 60" required>
                 </div>
                 <div class="input-group">
                     <label for="domainWhitelist">Whitelist de Domínios (um por linha)</label>
-                    <textarea id="domainWhitelist" rows="6" placeholder="Ex:\nrotatransportes.com.br\nwww.google.com"></textarea>
-                    <small>Domínios que os utilizadores podem aceder *antes* de fazer login no portal.</small>
+                    <textarea id="domainWhitelist" rows="6" placeholder="exemplo.com&#10;outrodominio.com.br"></textarea>
+                    <small>Domínios que os utilizadores podem aceder antes do login.</small>
                 </div>
                 <p id="hotspotSettingsError" class="form-message error"></p>
                 <p id="hotspotSettingsSuccess" class="form-message success"></p>
@@ -101,18 +106,40 @@
     </div>
 
     <!-- Aba 4: Funções e Permissões (Fase 3.1) -->
-    <!-- [ATUALIZADO V8] Adicionado master-only -->
-    <div id="tab-permissoes" class="tab-content admin-only master-only">
+    <!-- [CORRIGIDO] Removida a classe 'master-only' -->
+    <div id="tab-permissoes" class="tab-content admin-only">
         <div class="content-section">
              <div class="section-header">
                 <h4>Funções e Permissões</h4>
+                <!-- [ATUALIZADO] Mensagem de erro -->
+                <p id="permissionsError" class="form-message error"></p>
             </div>
-            <p style="margin-top: 10px;">(Fase 3.1) - A matriz visual de permissões será implementada aqui.</p>
+            <!-- [ATUALIZADO] Tabela real para a matriz -->
+            <div class="table-container" style="max-height: 60vh; overflow-y: auto; margin-top: 15px;">
+                <table class="permissions-matrix" id="permissionsTable">
+                    <thead>
+                        <!-- O cabeçalho (<th>) será preenchido pelo JS -->
+                        <tr>
+                            <th>Funcionalidade</th>
+                            <!-- Ex: <th>Master</th> <th>Gestão</th> ... -->
+                        </tr>
+                    </thead>
+                    <!-- O corpo será preenchido pelo JS -->
+                    <tbody id="permissionsTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center;">A carregar...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p style="margin-top: 15px; font-size: 0.9rem; color: #718096;">
+                Esta matriz reflete as permissões atuais definidas na base de dados.
+            </p>
         </div>
     </div>
 
     <!-- Aba 5: Logs de Atividade (Fase 3.2) -->
-    <!-- [ATUALIZADO V8] Adicionado master-only -->
+    <!-- [NOTA] 'master-only' mantido por agora -->
     <div id="tab-logs" class="tab-content admin-only master-only">
         <div class="content-section">
             <div class="section-header">
@@ -123,15 +150,14 @@
     </div>
 
     <!-- Aba 6: Gestão LGPD (Fase 3.3) -->
-    <!-- [ATUALIZADO V8] Adicionado master-only -->
+    <!-- [NOTA] 'master-only' mantido por agora -->
     <div id="tab-lgpd" class="tab-content admin-only master-only">
         <div class="content-section">
              <div class="section-header">
-                <h4>Gestão de Exclusão de Dados (LGPD)</h4>
+                <h4>Gestão LGPD</h4>
             </div>
-            <p style="margin-top: 10px;">(Fase 3.3) - A interface para gerir pedidos de exclusão de dados será implementada aqui.</p>
+            <p style="margin-top: 10px;">(Fase 3.3) - A gestão de pedidos de exclusão de dados será implementada aqui.</p>
         </div>
     </div>
 
 </div>
-

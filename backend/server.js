@@ -14,6 +14,8 @@ const campaignRoutes = require('./routes/campaigns');
 const bannerRoutes = require('./routes/banners');
 const hotspotRoutes = require('./routes/hotspot');
 const settingsRoutes = require('./routes/settings'); // Rota de configurações
+const permissionsRoutes = require('./routes/permissions'); // [NOVO] Importa as rotas de permissões
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -38,6 +40,8 @@ app.use('/api/campaigns', campaignRoutes); // Rotas de campanhas
 app.use('/api/banners', bannerRoutes);     // Rotas de banners
 app.use('/api/hotspot', hotspotRoutes);    // Rotas do portal hotspot (pesquisa, contagem)
 app.use('/api/settings', settingsRoutes);  // [NOVO] Rotas de configurações
+app.use('/api/permissions', permissionsRoutes); // [NOVO] Regista as rotas de permissões
+
 
 
 // --- Rota de Teste Principal ---
