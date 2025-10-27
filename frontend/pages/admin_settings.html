@@ -1,16 +1,16 @@
 <!-- Ficheiro: pages/admin_settings.html -->
-<!-- [ATUALIZADO - Fase 3.1 GESTÃO BATCH] -->
+<!-- [VERSÃO CORRIGIDA - Labels associadas com 'for'] -->
 
 <div class="page-header">
     <h3>Configurações do Sistema</h3>
 </div>
 
-<!-- Navegação em Abas (Inalterada) -->
+<!-- Navegação em Abas -->
 <nav class="tab-nav">
     <button class="tab-link active" data-tab="tab-perfil">Meu Perfil</button>
     <button class="tab-link admin-only master-only" data-tab="tab-geral">Geral</button>
     <button class="tab-link admin-only master-only" data-tab="tab-hotspot">Portal Hotspot</button>
-    <button class="tab-link admin-only" data-tab="tab-permissoes">Funções e Permissões</button>
+    <button class="tab-link admin-only master-only" data-tab="tab-permissoes">Funções e Permissões</button>
     <button class="tab-link admin-only master-only" data-tab="tab-logs">Logs de Atividade</button>
     <button class="tab-link admin-only master-only" data-tab="tab-lgpd">Gestão LGPD</button>
 </nav>
@@ -18,15 +18,13 @@
 <!-- Conteúdo das Abas -->
 <div class="tab-content-container">
 
-    <!-- Aba 1: Meu Perfil (Inalterado) -->
+    <!-- Aba 1: Meu Perfil (Fase 2.2 - Concluída) -->
     <div id="tab-perfil" class="tab-content active">
-        <!-- ... (Conteúdo inalterado) ... -->
         <div class="content-section">
             <div class="section-header">
                 <h4>Alterar Minha Senha (Voluntariamente)</h4>
             </div>
             <form id="changeOwnPasswordForm">
-                <!-- ... (Campos inalterados) ... -->
                 <div class="input-group">
                     <label for="currentPassword">Senha Atual</label>
                     <input type="password" id="currentPassword" required>
@@ -41,67 +39,141 @@
                 </div>
                 <p id="changeOwnPasswordError" class="form-message error"></p>
                 <p id="changeOwnPasswordSuccess" class="form-message success"></p>
-                <button type="submit" class="btn-primary">Alterar Senha</button>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Alterar Senha</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- Aba 2: Geral (Inalterado) -->
+    <!-- Aba 2: Geral (Fase 2.3) -->
     <div id="tab-geral" class="tab-content admin-only master-only">
-        <!-- ... (Conteúdo inalterado) ... -->
-    </div>
+        <div class="content-section">
+            <div class="section-header">
+                <h4>Configurações Gerais da Empresa</h4>
+            </div>
+            <form id="generalSettingsForm" enctype="multipart/form-data">
+                <div class="input-group">
+                    <!-- [CORRIGIDO] Adicionado for="companyName" -->
+                    <label for="companyName">Nome da Empresa</label>
+                    <input type="text" id="companyName" placeholder="O nome que aparece no painel">
+                </div>
+                
+                <div class="input-group">
+                    <!-- [CORRIGIDO] Adicionado for="logoUpload" -->
+                    <label for="logoUpload">Logótipo (.png, .jpg, .svg)</label>
+                    <input type="file" id="logoUpload" accept="image/png, image/jpeg, image/svg+xml">
+                    <div class="logo-preview-container">
+                        <p>Pré-visualização do Logo Atual:</p>
+                        <img id="currentLogoPreview" src="#" alt="Logo Atual" style="display: none; max-height: 50px; background-color: #fff; border-radius: 4px; padding: 5px; margin-top: 10px;">
+                    </div>
+                </div>
 
-    <!-- Aba 3: Portal Hotspot (Inalterado) -->
+                <div class="input-group">
+                    <!-- [CORRIGIDO] Adicionado for="primaryColor" -->
+                    <label for="primaryColor">Cor Primária</label>
+                    <input type="color" id="primaryColor" value="#4299e1" class="color-picker">
+                    <p class="input-hint">Define a cor dos botões e destaques do painel.</p>
+                </div>
+                
+                <p id="generalSettingsError" class="form-message error"></p>
+                <p id="generalSettingsSuccess" class="form-message success"></p>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Guardar Configurações Gerais</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Aba 3: Portal Hotspot (Fase 2.4) -->
     <div id="tab-hotspot" class="tab-content admin-only master-only">
-        <!-- ... (Conteúdo inalterado) ... -->
+        <div class="content-section">
+            <div class="section-header">
+                <h4>Configurações do Portal Hotspot</h4>
+            </div>
+            <form id="hotspotSettingsForm">
+                <div class="input-group">
+                    <!-- [CORRIGIDO] Adicionado for="sessionTimeoutMinutes" -->
+                    <label for="sessionTimeoutMinutes">Tempo de Sessão (minutos)</label>
+                    <input type="number" id="sessionTimeoutMinutes" placeholder="Ex: 60" min="1">
+                    <p class="input-hint">Tempo que o utilizador final fica autenticado antes de precisar logar novamente.</p>
+                </div>
+                
+                <div class="input-group">
+                    <!-- [CORRIGIDO] Adicionado for="domainWhitelist" -->
+                    <label for="domainWhitelist">Whitelist de Domínios (um por linha)</label>
+                    <textarea id="domainWhitelist" rows="5" placeholder="Ex:\ngoogle.com\nfacebook.com\nwhatsapp.net"></textarea>
+                    <p class="input-hint">Domínios que o utilizador pode aceder *antes* de se autenticar no hotspot.</p>
+                </div>
+
+                <p id="hotspotSettingsError" class="form-message error"></p>
+                <p id="hotspotSettingsSuccess" class="form-message success"></p>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Guardar Configurações do Hotspot</button>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <!-- Aba 4: Funções e Permissões (Fase 3.1 GESTÃO BATCH) -->
-    <div id="tab-permissoes" class="tab-content admin-only">
+    <!-- Aba 4: Funções e Permissões (Fase 3.1) -->
+    <div id="tab-permissoes" class="tab-content admin-only master-only">
         <div class="content-section">
              <div class="section-header">
-                <h4>Gestão de Funções e Permissões</h4>
-                <p id="permissionsError" class="form-message error"></p>
-                <p id="permissionsSuccess" class="form-message success" style="display: none;"></p>
+                <h4>Funções e Permissões</h4>
             </div>
-            <div class="table-container" style="max-height: 60vh; overflow-y: auto; margin-top: 15px;">
-                <table class="permissions-matrix" id="permissionsTable">
+            <p style="margin-top: 10px;">(Fase 3.1) - A matriz visual de permissões será implementada aqui.</p>
+            <!-- O conteúdo da Matriz V13.5.3 (com botão salvar) iria aqui -->
+            <div class="permissions-matrix" style="margin-top: 20px;">
+                <p id="permissionsError" class="form-message error"></p>
+                
+                <!-- [NOVO V13.5.3] Mensagens contextuais -->
+                <p id="permHelpTextMaster" class="input-hint" style="display: none; margin-bottom: 15px;">
+                    Selecione as permissões para cada função. As alterações só serão aplicadas após clicar em "Salvar Alterações".
+                </p>
+                <p id="permHelpTextDPO" class="input-hint" style="display: none; margin-bottom: 15px;">
+                    Modo de auditoria (Leitura). Apenas o 'master' pode editar as permissões.
+                </p>
+
+                <table id="permissionsTable">
                     <thead>
                         <tr>
                             <th>Funcionalidade</th>
                             <th>Ação</th>
-                            <!-- Ex: <th>Master</th> <th>Gestão</th> ... -->
+                            <!-- As colunas das ROLES serão injetadas aqui pelo JS -->
                         </tr>
                     </thead>
                     <tbody id="permissionsTableBody">
-                        <tr>
-                            <td colspan="6" style="text-align: center;">A carregar...</td>
-                        </tr>
+                        <!-- O conteúdo da matriz será injetado aqui pelo JS -->
                     </tbody>
                 </table>
+                
+                <!-- [NOVO V13.5.3] Botão Salvar -->
+                <div id="permSaveChangesContainer" class="form-actions" style="display: none; margin-top: 25px;">
+                     <button type="button" id="permSaveChangesBtn" class="btn-primary">Salvar Alterações</button>
+                     <p id="permSaveStatus" style="margin-left: 15px;"></p>
+                </div>
             </div>
-
-            <!-- [NOVO] Botão de Salvar -->
-            <!-- Escondido por padrão, o JS o mostrará apenas para o Master -->
-            <div class="save-actions-container master-view-only" style="display: none; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: right;">
-                <button id="savePermissionsBtn" class="btn-primary">Salvar Alterações</button>
-            </div>
-
-            <p style="margin-top: 15px; font-size: 0.9rem; color: #718096;">
-                <span class="master-view-only" style="display: none;">Como <strong>Master</strong>, pode gerir as permissões (exceto as suas próprias). Clique em "Salvar Alterações" após modificar.</span>
-                <span class="dpo-view-only" style="display: none;">Como <strong>DPO</strong>, apenas pode visualizar as permissões.</span>
-            </p>
         </div>
     </div>
 
-    <!-- Aba 5: Logs de Atividade (Inalterado) -->
+    <!-- Aba 5: Logs de Atividade (Fase 3.2) -->
     <div id="tab-logs" class="tab-content admin-only master-only">
-        <!-- ... (Conteúdo inalterado) ... -->
+        <div class="content-section">
+            <div class="section-header">
+                <h4>Logs de Atividade do Painel</h4>
+            </div>
+             <p style="margin-top: 10px;">(Fase 3.2) - O visualizador de logs de auditoria será implementado aqui.</p>
+        </div>
     </div>
 
-    <!-- Aba 6: Gestão LGPD (Inalterado) -->
+    <!-- Aba 6: Gestão LGPD (Fase 3.3) -->
     <div id="tab-lgpd" class="tab-content admin-only master-only">
-        <!-- ... (Conteúdo inalterado) ... -->
+        <div class="content-section">
+             <div class="section-header">
+                <h4>Gestão LGPD</h4>
+            </div>
+            <p style="margin-top: 10px;">(Fase 3.3) - A gestão de pedidos de exclusão de dados será implementada aqui.</p>
+        </div>
     </div>
 
 </div>

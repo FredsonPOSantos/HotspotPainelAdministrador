@@ -9,97 +9,88 @@
     <!-- Biblioteca para exportação para Excel -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-    <!-- Estilos inline (mantidos da sua versão anterior) -->
     <style>
         .sidebar-nav .nav-title {
-            padding: 10px 24px 5px; /* Ajustado padding */
+            padding: 10px 24px 5px; 
             font-size: 0.75rem;
             font-weight: 600;
             color: #a0aec0;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            margin-top: 15px; /* Aumentado espaço */
+            margin-top: 15px; 
         }
         .sidebar-nav .nav-title:first-of-type {
              margin-top: 0;
          }
-        /* Garante que itens escondidos pelo JS não ocupem espaço */
         [style*="display: none"] { display: none !important; }
     </style>
 </head>
-<body class="dashboard-body">
-
+<!-- [CORREÇÃO V14.1] Adicionado style="display: flex;" para forçar o layout correto
+     e resolver o conflito de prioridade de CSS. -->
+<body class="dashboard-body" style="display: flex;">
+    <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-header">
-            <!-- [NOVO V13] Adicionada a tag para o logo -->
-            <img id="sidebarLogo" src="#" alt="Logótipo" style="display: none;">
-            <!-- O H2 será escondido pelo JS se o logo for carregado -->
-            <h2>Grupo Brasileiro</h2>
-            <span>Admin</span>
+            <img id="sidebarLogo" src="#" alt="Logótipo" style="display: none; max-height: 50px; margin-bottom: 10px;">
+            <h2>Painel Admin</h2> 
         </div>
-
-        <!-- Menu Organizado com Grupos -->
         <nav class="sidebar-nav">
+            <ul>
+                <!-- [ATUALIZADO] Atributos data-permission adicionados -->
+                <li class="nav-item active" data-page="admin_home"><a>🏠 Dashboard</a></li>
 
-            <h4 class="nav-title">Geral</h4>
-            <a href="#" class="nav-item active" data-page="admin_home">
-                <span class="icon">🏠</span> Dashboard
-            </a>
-            <a href="#" class="nav-item" data-page="admin_hotspot">
-                <span class="icon">🔍</span> Hotspot
-            </a>
+                <li class="nav-title">Operação</li>
+                <li class="nav-item" data-page="admin_hotspot" data-permission="hotspot.reports.read"><a>📊 Relatórios Hotspot</a></li>
+                
+                <li class="nav-title">Gestão de Conteúdo</li>
+                <li class="nav-item" data-page="admin_campaigns" data-permission="campaigns.custom.read"><a>🚀 Campanhas</a></li>
+                <li class="nav-item" data-page="admin_templates" data-permission="templates.custom.read"><a>🎨 Templates</a></li>
+                <li class="nav-item" data-page="admin_banners" data-permission="banners.custom.read"><a>🖼️ Banners</a></li>
 
-            <h4 class="nav-title">Portal (Marketing)</h4>
-            <a href="#" class="nav-item" data-page="admin_campaigns">
-                <span class="icon">🎯</span> Campanhas
-            </a>
-            <a href="#" class="nav-item" data-page="admin_templates">
-                <span class="icon">🎨</span> Templates
-            </a>
-            <a href="#" class="nav-item" data-page="admin_banners">
-                <span class="icon">📢</span> Banners
-            </a>
-
-            <!-- Título da seção Administração com admin-only -->
-            <h4 class="nav-title admin-only">Administração</h4>
-            <a href="#" class="nav-item admin-only" data-page="admin_routers">
-                <span class="icon">📡</span> Roteadores
-            </a>
-            <a href="#" class="nav-item admin-only" data-page="admin_users">
-                <span class="icon">👥</span> Utilizadores
-            </a>
-
-            <h4 class="nav-title">Sistema</h4>
-            <!-- Link para Configurações -->
-            <a href="#" class="nav-item" data-page="admin_settings">
-                <span class="icon">⚙️</span> Configurações
-            </a>
+                <li class="nav-title">Gestão de Rede</li>
+                <li class="nav-item" data-page="admin_routers" data-permission="routers.read"><a>📡 Roteadores</a></li>
+                <li class="nav-item" data-page="admin_users" data-permission="users.admin.read.limited"><a>👥 Utilizadores Admin</a></li>
+                
+                <li class="nav-title">Sistema</li>
+                <li class="nav-item admin-only" data-page="admin_settings"><a>⚙️ Configurações</a></li>
+            </ul>
         </nav>
-
         <div class="sidebar-footer">
-            <button id="logoutButton" class="logout-btn">
-                <span class="icon">🚪</span> Sair
+            <div class="user-info">
+                <span>Bem-vindo,</span>
+                <strong id="userName">Utilizador...</strong>
+            </div>
+            <button id="logoutButton" class="btn-logout" title="Sair">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
             </button>
         </div>
     </aside>
 
+    <!-- Conteúdo Principal -->
     <main class="main-content">
         <header class="main-header">
             <h1 id="pageTitle">Dashboard</h1>
-            <div class="user-profile">
-                Bem-vindo, <strong id="userName">...</strong>
-            </div>
         </header>
+        
+        <!-- Área de conteúdo dinâmico -->
         <div class="content-area">
-            <!-- O conteúdo é carregado aqui -->
+            <!-- O conteúdo de pages/admin_home.html será carregado aqui inicialmente -->
         </div>
     </main>
 
-    <!-- Modal de Troca de Senha Obrigatória -->
-    <div id="forceChangePasswordModal" class="modal-overlay hidden" style="z-index: 9998; background-color: rgba(0, 0, 0, 0.8);">
-        <div class="modal-content" style="z-index: 9999;">
-            <h3>Troca de Senha Obrigatória</h3>
-            <p>A sua senha foi resetada por um administrador...</p>
+    <!-- Modal de Troca de Senha Obrigatória (V11) -->
+    <div id="forceChangePasswordModal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header" style="border-bottom: 0; padding-bottom: 0;">
+                <h3 style="color: #c53030;">Troca de Senha Obrigatória</h3>
+            </div>
+            <p style="padding: 0 24px; margin-top: 10px; color: #4a5568;">
+                A sua senha foi resetada por um administrador. Por favor, defina uma nova senha para continuar.
+            </p>
             <form id="forceChangePasswordForm" style="margin-top: 20px;">
                 <div class="input-group">
                     <label for="currentTemporaryPassword">Senha Temporária (Atual)</label>
@@ -129,7 +120,7 @@
     <script src="js/admin_settings.js"></script>
 
     <!-- Script "Maestro" - Carregado por último -->
-    <script src="js/admin_dashboard.js"></script> <!-- Carrega o JS V13 -->
+    <script src="js/admin_dashboard.js"></script> 
 </body>
 </html>
 

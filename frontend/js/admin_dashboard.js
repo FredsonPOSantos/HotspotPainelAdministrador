@@ -1,11 +1,11 @@
 // Ficheiro: frontend/js/admin_dashboard.js
-// [VERSÃO 13 - Base V5 Estável + applyMenuPermissions com removeProperty + CSS Limpo + Load Settings]
+// [VERSÃO 14.4 - Fase 3.1 GESTÃO: Correção de timing robusta no loadPage]
 
 // --- Variáveis Globais ---
 let isProfileLoaded = false;
 window.currentUserProfile = null;
 let loadPageExternal;
-window.systemSettings = null; // [NOVO V13] Para guardar configs gerais (nome, logo, cor)
+window.systemSettings = null; 
 
 // --- Funções Globais ---
 const showForcePasswordChangeModal = () => {
@@ -15,11 +15,11 @@ const showForcePasswordChangeModal = () => {
         document.querySelector('.sidebar')?.classList.add('hidden');
         document.querySelector('.main-content')?.classList.add('hidden');
     } else {
-        console.error("FATAL: Modal 'forceChangePasswordModal' não encontrado (V13)!");
+        console.error("FATAL: Modal 'forceChangePasswordModal' não encontrado (V14.4)!");
     }
 };
 
-// [ATUALIZADO V13] Adiciona cache busting simples para GET
+// apiRequest (Lógica V14.3 inalterada)
 const apiRequest = async (endpoint, method = 'GET', body = null) => {
     const API_ADMIN_URL = `http://${window.location.hostname}:3000`;
     const token = localStorage.getItem('adminToken');
@@ -27,17 +27,15 @@ const apiRequest = async (endpoint, method = 'GET', body = null) => {
         method,
         headers: {
             'Authorization': `Bearer ${token}`,
-            'Cache-Control': 'no-cache' // [NOVO V13] Tenta evitar cache da API
+            'Cache-Control': 'no-cache' 
         }
     };
 
     let url = `${API_ADMIN_URL}${endpoint}`;
 
-    // Adiciona timestamp para GET para evitar cache do browser (cache busting)
     if (method === 'GET') {
         url += (url.includes('?') ? '&' : '?') + `_=${Date.now()}`;
     }
-
 
     if (body instanceof FormData) {
         options.body = body;
@@ -47,18 +45,18 @@ const apiRequest = async (endpoint, method = 'GET', body = null) => {
     }
 
     try {
-        const response = await fetch(url, options); // Usa url com timestamp
+        const response = await fetch(url, options); 
         if (!response.ok) {
             let errorData = {};
             try { errorData = await response.json(); }
             catch (e) { errorData.message = response.statusText || `Erro HTTP ${response.status}`; }
 
             if (response.status === 401) {
-                console.warn("Token inválido/expirado (V13). Deslogando...");
+                console.warn("Token inválido/expirado (V14.4). Deslogando...");
                 localStorage.removeItem('adminToken'); window.currentUserProfile = null; isProfileLoaded = false; window.systemSettings = null;
                 window.location.href = 'admin_login.html'; throw new Error('Não autorizado.');
             } else if (errorData.code === 'PASSWORD_CHANGE_REQUIRED') {
-                console.warn("API bloqueada (V13). Troca de senha obrigatória.");
+                console.warn("API bloqueada (V14.4). Troca de senha obrigatória.");
                 showForcePasswordChangeModal(); throw new Error(errorData.message || "Troca de senha obrigatória.");
             } else { throw new Error(errorData.message || `Erro ${response.status}`); }
         }
@@ -66,16 +64,39 @@ const apiRequest = async (endpoint, method = 'GET', body = null) => {
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) return await response.json();
         else return await response.text() || null;
-    } catch (error) { console.error(`Erro em apiRequest (V13) ${method} ${endpoint}:`, error); throw error; }
+    } catch (error) { console.error(`Erro em apiRequest (V14.4) ${method} ${endpoint}:`, error); throw error; }
 };
 
-// [NOVO V13] Função para aplicar as configurações visuais (Nome, Logo, Cor)
+// [NOVO V14.4] Helper para esperar que o HTML injetado esteja pronto
+const waitForElement = (elementId, callback, retries = 20, delay = 50) => {
+    return new Promise((resolve) => {
+        const check = (retryCount) => {
+            const el = document.getElementById(elementId);
+            if (el) {
+                // Elemento encontrado, executa a função init
+                callback(); 
+                resolve();  // Resolve a promessa
+            } else if (retryCount > 0) {
+                // Tenta novamente após o delay
+                setTimeout(() => check(retryCount - 1), delay);
+            } else {
+                // Esgotou as tentativas
+                console.error(`Timeout (V14.4): Elemento #${elementId} não encontrado após ${retries * delay}ms. initFunction para esta página não foi executada.`);
+                resolve(); // Resolve mesmo assim para não bloquear a execução
+            }
+        };
+        check(retries);
+    });
+};
+
+
+// applyVisualSettings (Lógica V14.3 inalterada)
 const applyVisualSettings = (settings) => {
     if (!settings) {
-        console.warn("applyVisualSettings (V13): Configurações não fornecidas.");
+        console.warn("applyVisualSettings (V14.4): Configurações não fornecidas.");
         return;
     }
-    console.log("applyVisualSettings (V13): Aplicando configurações...", settings);
+    console.log("applyVisualSettings (V14.4): Aplicando configurações...", settings);
 
     // 1. Nome da Empresa (Sidebar Header)
     const sidebarTitle = document.querySelector('.sidebar-header h2');
@@ -86,35 +107,38 @@ const applyVisualSettings = (settings) => {
          console.warn("Elemento .sidebar-header h2 não encontrado para aplicar nome.");
     }
 
-    // 2. Logótipo (Sidebar Header) - Assume que existe um <img> com id="sidebarLogo"
-    const sidebarLogo = document.getElementById('sidebarLogo'); // PRECISA ADICIONAR ESTE ID NO HTML (<img id="sidebarLogo" src="#" alt="Logótipo" style="display: none;">)
+    // 2. Logótipo (Sidebar Header) 
+    const sidebarLogo = document.getElementById('sidebarLogo'); 
     if (sidebarLogo) {
         if (settings.logo_url) {
             const API_ADMIN_URL = `http://${window.location.hostname}:3000`;
             const logoPath = settings.logo_url.startsWith('/') ? settings.logo_url : '/' + settings.logo_url;
-            sidebarLogo.src = `${API_ADMIN_URL}${logoPath}?t=${Date.now()}`; // Cache busting
-            sidebarLogo.style.display = 'block'; // Mostra a imagem
-            sidebarLogo.alt = settings.company_name || "Logótipo"; // Alt text
+            sidebarLogo.src = `${API_ADMIN_URL}${logoPath}?t=${Date.now()}`; 
+            sidebarLogo.alt = settings.company_name || "Logótipo"; 
+            
+            // --- [CORREÇÃO V14.1] ---
+            sidebarLogo.style.display = 'block'; 
+            sidebarLogo.style.maxHeight = '50px'; 
+            sidebarLogo.style.width = 'auto'; 
+            sidebarLogo.style.marginBottom = '10px'; 
+            // --- Fim da Correção ---
+
             console.log(` - Logo aplicado: ${sidebarLogo.src}`);
-             // Opcional: Esconder o H2 se o logo for mostrado
              if(sidebarTitle) sidebarTitle.style.display = 'none';
         } else {
-            sidebarLogo.style.display = 'none'; // Esconde se não houver logo
+            sidebarLogo.style.display = 'none'; 
             sidebarLogo.src = '#';
             console.log(" - Nenhum logo URL, logo escondido.");
-             // Opcional: Mostrar o H2 se o logo for escondido
              if(sidebarTitle) sidebarTitle.style.removeProperty('display');
         }
     } else {
         console.warn("Elemento #sidebarLogo não encontrado para aplicar logótipo.");
-        // Se não encontrar o logo, garante que o H2 esteja visível
          if(sidebarTitle) sidebarTitle.style.removeProperty('display');
     }
 
     // 3. Cor Primária (Variável CSS)
     if (settings.primary_color) {
         document.documentElement.style.setProperty('--primary-color', settings.primary_color);
-        // Calcula uma cor mais escura para hover/gradiente (exemplo simples)
         try {
              let darkerColor = settings.primary_color;
              if (settings.primary_color.startsWith('#') && settings.primary_color.length === 7) {
@@ -135,7 +159,6 @@ const applyVisualSettings = (settings) => {
         }
     } else {
          console.warn("Cor primária não definida nas configurações.");
-         // Remove/reseta as variáveis se não houver cor definida
          document.documentElement.style.removeProperty('--primary-color');
          document.documentElement.style.removeProperty('--primary-color-dark');
     }
@@ -144,165 +167,234 @@ const applyVisualSettings = (settings) => {
 
 // --- INICIALIZAÇÃO PRINCIPAL (DOMContentLoaded) ---
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log("DOM Carregado (V13). Iniciando Dashboard...");
+    console.log("DOM Carregado (V14.4). Iniciando Dashboard...");
     const token = localStorage.getItem('adminToken');
-    if (!token) { console.log("Nenhum token (V13). Redirecionando."); window.location.href = 'admin_login.html'; return; }
+    if (!token) { console.log("Nenhum token (V14.4). Redirecionando."); window.location.href = 'admin_login.html'; return; }
 
     // --- DOM Elements ---
     const userNameElement = document.getElementById('userName');
     const logoutButton = document.getElementById('logoutButton');
     const mainContentArea = document.querySelector('.content-area');
     const navLinks = document.querySelectorAll('.sidebar-nav .nav-item');
-    const allNavItems = document.querySelectorAll('.sidebar-nav .nav-item, .sidebar-nav .nav-title'); // Para permissões
+    const allNavItemsAndTitles = document.querySelectorAll('.sidebar-nav .nav-item, .sidebar-nav .nav-title'); // [ATUALIZADO V14]
     const pageTitleElement = document.getElementById('pageTitle');
     const changePasswordModal = document.getElementById('forceChangePasswordModal');
     const changePasswordForm = document.getElementById('forceChangePasswordForm');
     const changePasswordError = document.getElementById('forceChangePasswordError');
     const changePasswordSuccess = document.getElementById('forceChangePasswordSuccess');
 
-    // Mapeamento de inicializadores
+    // Mapeamento de inicializadores (V14.3 inalterado)
     const pageInitializers = { 'admin_home': window.initHomePage, 'admin_hotspot': window.initHotspotPage, 'admin_users': window.initUsersPage, 'admin_templates': window.initTemplatesPage, 'admin_banners': window.initBannersPage, 'admin_campaigns': window.initCampaignsPage, 'admin_routers': window.initRoutersPage, 'admin_settings': window.initSettingsPage };
 
     // --- PAGE NAVIGATION ---
     const loadPage = async (pageName, linkElement) => {
-        if (!isProfileLoaded) { console.warn(`loadPage (${pageName}) chamado antes do perfil (V13).`); }
-        if (isProfileLoaded && window.currentUserProfile?.must_change_password) { console.warn(`Navegação ${pageName} bloqueada (V13): Senha.`); showForcePasswordChangeModal(); return; }
-        console.log(`loadPage (V13): Carregando ${pageName}...`);
+        if (!isProfileLoaded) { console.warn(`loadPage (${pageName}) chamado antes do perfil (V14.4).`); }
+        if (isProfileLoaded && window.currentUserProfile?.must_change_password) { console.warn(`Navegação ${pageName} bloqueada (V14.4): Senha.`); showForcePasswordChangeModal(); return; }
+        console.log(`loadPage (V14.4): Carregando ${pageName}...`);
         navLinks.forEach(link => link.classList.remove('active'));
         let currentTitle = pageName;
-        // Lógica título V11 (mantida)
         if (linkElement) { linkElement.classList.add('active'); const txt=(linkElement.textContent||'').trim().replace(/[\u{1F300}-\u{1F5FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu,'').trim(); currentTitle=txt||pageName; }
         else { const curr=document.querySelector(`.sidebar-nav .nav-item[data-page="${pageName}"]`); if(curr){ curr.classList.add('active'); const txt=(curr.textContent||'').trim().replace(/[\u{1F300}-\u{1F5FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/gu,'').trim(); currentTitle=txt||pageName; }}
         if (pageTitleElement) pageTitleElement.textContent = currentTitle;
         try {
-            console.log(`Fetch (V13): pages/${pageName}.html`); const response = await fetch(`pages/${pageName}.html?_=${Date.now()}`); /* Cache Bust */ console.log(`Fetch status (V13) ${pageName}: ${response.status}`);
+            console.log(`Fetch (V14.4): pages/${pageName}.html`); const response = await fetch(`pages/${pageName}.html?_=${Date.now()}`); /* Cache Bust */ console.log(`Fetch status (V14.4) ${pageName}: ${response.status}`);
             if (!response.ok) throw new Error(`Página ${pageName}.html não encontrada (${response.status})`);
-            if (mainContentArea) { mainContentArea.innerHTML = await response.text(); console.log(`HTML (V13) ${pageName} injetado.`); }
-            else { console.error("'.content-area' (V13) não encontrado."); return; }
+            
+            if (mainContentArea) { mainContentArea.innerHTML = await response.text(); console.log(`HTML (V14.4) ${pageName} injetado.`); }
+            else { console.error("'.content-area' (V14.4) não encontrado."); return; }
+            
             const initFunction = pageInitializers[pageName];
-            if (typeof initFunction === 'function') { console.log(`Exec init (V13) ${pageName}...`); setTimeout(initFunction, 0); }
-            else { console.warn(`Init function (V13) ${pageName} não encontrada.`); }
-        } catch (error) { console.error(`Erro loadPage ${pageName} (V13):`, error); if (mainContentArea) mainContentArea.innerHTML = `<h2>Erro ${pageName}.</h2><p>${error.message}.</p>`; }
+            
+            if (typeof initFunction === 'function') {
+                console.log(`Exec init (V14.4) ${pageName}...`);
+                
+                // --- [CORREÇÃO V14.4] ---
+                // Lógica robusta de espera. Em vez de um timeout fixo, espera que
+                // um elemento principal da página exista antes de executar o init.
+                // Isto corrige os erros "Form ... não encontrado" nos logs.
+                
+                // Mapeia o nome da página a um ID de elemento principal esperado nessa página.
+                const pageElementIds = {
+                    'admin_settings': 'tab-perfil', // ID principal da página de settings
+                    'admin_users': 'usersTable',     // ID principal da página de users
+                    // IDs 'supostos' para outras páginas (podem precisar de ajuste)
+                    'admin_routers': 'routersTable', 
+                    'admin_home': 'dashboardCardsContainer', // Supondo um ID para os cards
+                    'admin_hotspot': 'hotspotReportsContainer', // Supondo um ID
+                    'admin_templates': 'templatesGrid', // Supondo um ID
+                    'admin_banners': 'bannersGrid', // Supondo um ID
+                    'admin_campaigns': 'campaignsTable' // Supondo um ID
+                };
+                
+                const elementIdToWaitFor = pageElementIds[pageName];
+
+                if (elementIdToWaitFor) {
+                    // Espera pelo elemento antes de chamar o init
+                    await waitForElement(elementIdToWaitFor, initFunction);
+                } else {
+                     // Fallback para páginas sem ID mapeado
+                    console.warn(`Init (V14.4): Sem ID de espera mapeado para ${pageName}. Usando timeout de 100ms.`);
+                    setTimeout(initFunction, 100); 
+                }
+
+            } else {
+                console.warn(`Init function (V14.4) ${pageName} não encontrada.`);
+            }
+        } catch (error) { console.error(`Erro loadPage ${pageName} (V14.4):`, error); if (mainContentArea) mainContentArea.innerHTML = `<h2>Erro ${pageName}.</h2><p>${error.message}.</p>`; }
     };
     loadPageExternal = loadPage;
 
-    // --- USER PROFILE & AUTH ---
+    // --- USER PROFILE & AUTH (V14.3 inalterado) ---
     const fetchUserProfile = async () => {
-         isProfileLoaded = false; window.currentUserProfile = null; // Reseta V13
+         isProfileLoaded = false; window.currentUserProfile = null; // Reseta V14.4
         try {
-            console.log("fetchUserProfile (V13): Buscando perfil...");
+            console.log("fetchUserProfile (V14.4): Buscando perfil...");
             const data = await apiRequest('/api/admin/profile');
-            if (!data || !data.profile || !data.profile.role) throw new Error("Perfil inválido (V13).");
-            console.log("fetchUserProfile (V13): Perfil recebido:", data.profile);
-            window.currentUserProfile = data.profile; // Define global ANTES da flag
-            isProfileLoaded = true; // SUCESSO
+            
+            if (!data || !data.profile || !data.profile.role || !data.profile.permissions) {
+                 throw new Error("Perfil inválido ou sem permissões (V14.4).");
+            }
+            
+            console.log(`fetchUserProfile (V14.4): Perfil recebido (Role: ${data.profile.role}) com ${data.profile.permissions.length} permissões.`);
+            window.currentUserProfile = data.profile; 
+            isProfileLoaded = true; 
+            
             if (userNameElement) userNameElement.textContent = data.profile.email;
-            // [MODIFICADO V13] applyMenuPermissions é chamado DEPOIS de carregar as settings
-            // applyMenuPermissions(data.profile.role); // NÃO MAIS AQUI
-            if (data.profile.must_change_password) { console.log("fetchUserProfile (V13): Senha obrigatória."); showForcePasswordChangeModal(); return false; } // Continua bloqueando aqui
-            console.log("fetchUserProfile (V13): Perfil OK."); return true;
+            
+            if (data.profile.must_change_password) { console.log("fetchUserProfile (V14.4): Senha obrigatória."); showForcePasswordChangeModal(); return false; } 
+            
+            console.log("fetchUserProfile (V14.4): Perfil OK."); return true;
         } catch (error) {
-            console.error("Falha CRÍTICA perfil (V13):", error.message); isProfileLoaded = false; window.currentUserProfile = null; window.systemSettings = null;
+            console.error("Falha CRÍTICA perfil (V14.4):", error.message); isProfileLoaded = false; window.currentUserProfile = null; window.systemSettings = null;
             if(mainContentArea) mainContentArea.innerHTML = '<h2>Erro perfil. Recarregue.</h2>'; document.querySelector('.sidebar')?.classList.add('hidden'); document.querySelector('.main-content')?.classList.add('hidden');
             if (!error.message || (!error.message.includes('Não autorizado') && !error.message.includes('obrigatória'))) { setTimeout(() => { localStorage.removeItem('adminToken'); window.location.href = 'admin_login.html'; }, 4000); }
             return false;
         }
     };
 
-    // [CORRIGIDO V13] Usa removeProperty ou style.display = 'none'
-    const applyMenuPermissions = (role) => {
-        console.log(`applyMenuPermissions (V13): Aplicando para role: ${role}`);
-        if (!role) { console.error("applyMenuPermissions (V13): Role inválida!"); return; } // Segurança extra
-        const isAdmin = ['master', 'gestao', 'DPO'].includes(role); const isMaster = (role === 'master');
-        console.log(`applyMenuPermissions (V13): isAdmin=${isAdmin}, isMaster=${isMaster}`);
+    // --- [REESCRITO V14] applyMenuPermissions (Lógica V14.3 inalterada) ---
+    const applyMenuPermissions = () => {
+        console.log(`applyMenuPermissions (V14.4): Aplicando permissões dinâmicas...`);
+        
+        if (!window.currentUserProfile || !window.currentUserProfile.permissions) {
+             console.error("applyMenuPermissions (V14.4): Perfil ou permissões não disponíveis!");
+             return;
+        }
+        
+        const userPermissions = new Set(window.currentUserProfile.permissions);
+        console.log("applyMenuPermissions (V14.4): Permissões do utilizador:", userPermissions);
 
-        allNavItems.forEach(el => {
-            let shouldBeVisible = true; let reason = "Padrão"; const pageName = el.getAttribute('data-page') || el.textContent.trim();
-
-            if (el.classList.contains('admin-only')) { if (!isAdmin) { shouldBeVisible = false; reason = "admin-only/!admin"; } else { reason = "admin-only/admin"; } }
-            else if (el.classList.contains('master-only')) { if (!isMaster) { shouldBeVisible = false; reason = "master-only/!master"; } else { reason = "master-only/master"; } }
-
-            // Usa removeProperty para mostrar, 'none' para esconder
-            if (shouldBeVisible) {
-                el.style.removeProperty('display');
+        // --- Passagem 1: Esconde/Mostra os links (nav-item) ---
+        const navItems = document.querySelectorAll('.sidebar-nav .nav-item');
+        
+        navItems.forEach(item => {
+            const requiredPermission = item.getAttribute('data-permission');
+            
+            if (requiredPermission) {
+                if (userPermissions.has(requiredPermission)) {
+                    item.style.removeProperty('display'); 
+                } else {
+                    item.style.display = 'none'; 
+                }
             } else {
-                el.style.display = 'none';
+                item.style.removeProperty('display');
             }
-            // Log para verificar o resultado real após aplicar
-            // console.log(`[V13 Perms] Item "${pageName}": Visível? ${shouldBeVisible} (${reason}) -> Estilo aplicado: display=${getComputedStyle(el).display}`);
         });
-        console.log("applyMenuPermissions (V13): Permissões do menu aplicadas.");
+        
+        // [ATUALIZADO V14] Lógica especial para 'Configurações' (admin-only)
+        const settingsLink = document.querySelector('.nav-item[data-page="admin_settings"]');
+        if (settingsLink) {
+             const isAdmin = ['master', 'gestao', 'DPO'].includes(window.currentUserProfile.role);
+             if (!isAdmin) {
+                 settingsLink.style.display = 'none';
+             }
+        }
+
+        // --- Passagem 2: Esconde títulos (nav-title) se todos os seus filhos estiverem escondidos ---
+        const navTitles = document.querySelectorAll('.sidebar-nav .nav-title');
+        
+        navTitles.forEach(titleEl => {
+            let nextEl = titleEl.nextElementSibling;
+            let hasVisibleChild = false;
+            
+            while (nextEl && !nextEl.classList.contains('nav-title')) {
+                if (nextEl.classList.contains('nav-item') && nextEl.style.display !== 'none') {
+                    hasVisibleChild = true;
+                    break; 
+                }
+                nextEl = nextEl.nextElementSibling;
+            }
+            
+            if (!hasVisibleChild) {
+                titleEl.style.display = 'none';
+                 console.log(`applyMenuPermissions (V14.4): Escondendo título "${titleEl.textContent}" (sem filhos visíveis).`);
+            } else {
+                titleEl.style.removeProperty('display');
+            }
+        });
+        
+        console.log("applyMenuPermissions (V14.4): Permissões do menu aplicadas.");
     };
 
 
-    // --- Logout ---
-    if (logoutButton) logoutButton.addEventListener('click', () => { console.log("Logout (V13)."); localStorage.removeItem('adminToken'); window.currentUserProfile = null; isProfileLoaded = false; window.systemSettings = null; window.location.href = 'admin_login.html'; });
-    else console.warn("Botão logout (V13) não encontrado.");
+    // --- Logout (V14.3 inalterado) ---
+    if (logoutButton) logoutButton.addEventListener('click', () => { console.log("Logout (V14.4)."); localStorage.removeItem('adminToken'); window.currentUserProfile = null; isProfileLoaded = false; window.systemSettings = null; window.location.href = 'admin_login.html'; });
+    else console.warn("Botão logout (V14.4) não encontrado.");
 
-    // --- Navegação ---
-    navLinks.forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); const page = link.getAttribute('data-page'); if(page) loadPage(page, link); else console.warn("Click item sem 'data-page' (V13)."); }));
+    // --- Navegação (V14.3 inalterado) ---
+    navLinks.forEach(link => link.addEventListener('click', (e) => { e.preventDefault(); const page = link.getAttribute('data-page'); if(page) loadPage(page, link); else console.warn("Click item sem 'data-page' (V14.4)."); }));
 
-    // --- Modal Troca Senha (Lógica Mantida V11) ---
-    if (changePasswordForm) { changePasswordForm.addEventListener('submit', async (e) => { /* ... Lógica V11 ... */ e.preventDefault(); console.log("Form troca senha submetido (V13)."); if(changePasswordError)changePasswordError.textContent=''; if(changePasswordSuccess)changePasswordSuccess.textContent=''; const btn = changePasswordForm.querySelector('button[type="submit"]'); if(btn){ btn.disabled = true; btn.textContent = 'A processar...'; } const currIn=document.getElementById('currentTemporaryPassword'); const newIn=document.getElementById('newPassword'); if(!currIn||!newIn){ if(changePasswordError)changePasswordError.textContent="Erro interno."; if(btn){ btn.disabled = false; btn.textContent = 'Alterar'; } return; } const curr=currIn.value; const nv=newIn.value; if(nv.length<6){ if(changePasswordError)changePasswordError.textContent='Senha < 6 chars.'; if(btn){ btn.disabled = false; btn.textContent = 'Alterar'; } return; } try { const result = await apiRequest('/api/admin/profile/change-own-password','POST',{currentPassword: curr,newPassword: nv}); if(changePasswordSuccess)changePasswordSuccess.textContent=(result.message||"Senha alterada!")+" Deslogando..."; setTimeout(()=>{ localStorage.removeItem('adminToken'); window.currentUserProfile=null; isProfileLoaded=false; window.systemSettings=null; window.location.href='admin_login.html'; },4000); } catch(error){ if(changePasswordError)changePasswordError.textContent=`Erro: ${error.message||'Falha.'}`; if(btn){ btn.disabled = false; btn.textContent = 'Alterar'; } } }); }
-    else console.warn("Form 'forceChangePasswordForm' (V13) não encontrado.");
+    // --- Modal Troca Senha (Lógica V14.3 inalterada) ---
+    if (changePasswordForm) { changePasswordForm.addEventListener('submit', async (e) => { /* ... Lógica V14.3 ... */ e.preventDefault(); console.log("Form troca senha submetido (V14.4)."); if(changePasswordError)changePasswordError.textContent=''; if(changePasswordSuccess)changePasswordSuccess.textContent=''; const btn = changePasswordForm.querySelector('button[type="submit"]'); if(btn){ btn.disabled = true; btn.textContent = 'A processar...'; } const currIn=document.getElementById('currentTemporaryPassword'); const newIn=document.getElementById('newPassword'); if(!currIn||!newIn){ if(changePasswordError)changePasswordError.textContent="Erro interno."; if(btn){ btn.disabled = false; btn.textContent = 'Alterar'; } return; } const curr=currIn.value; const nv=newIn.value; if(nv.length<6){ if(changePasswordError)changePasswordError.textContent='Senha < 6 chars.'; if(btn){ btn.disabled = false; btn.textContent = 'Alterar'; } return; } try { const result = await apiRequest('/api/admin/profile/change-own-password','POST',{currentPassword: curr,newPassword: nv}); if(changePasswordSuccess)changePasswordSuccess.textContent=(result.message||"Senha alterada!")+" Deslogando..."; setTimeout(()=>{ localStorage.removeItem('adminToken'); window.currentUserProfile=null; isProfileLoaded=false; window.systemSettings=null; window.location.href='admin_login.html'; },4000); } catch(error){ if(changePasswordError)changePasswordError.textContent=`Erro: ${error.message||'Falha.'}`; if(btn){ btn.disabled = false; btn.textContent = 'Alterar'; } } }); }
+    else console.warn("Form 'forceChangePasswordForm' (V14.4) não encontrado.");
 
-    // --- [REESTRUTURADO V13] INICIALIZAÇÃO ---
-    console.log("Dashboard (V13): Iniciando sequência...");
-    // 1. Busca o perfil E ESPERA
+    // --- [REESTRUTURADO V14] INICIALIZAÇÃO (Lógica V14.3 inalterada) ---
+    console.log("Dashboard (V14.4): Iniciando sequência...");
+    // 1. Busca o perfil E ESPERA (agora inclui permissões)
     const profileOK = await fetchUserProfile();
-    console.log(`Dashboard (V13): Perfil carregado? ${profileOK}`);
+    console.log(`Dashboard (V14.4): Perfil carregado? ${profileOK}`);
 
-    // Se perfil falhou ou senha obrigatória, para aqui.
     if (!profileOK) {
-        console.log("Dashboard (V13): Inicialização INTERROMPIDA (fetchUserProfile falhou ou bloqueou).");
+        console.log("Dashboard (V14.4): Inicialização INTERROMPIDA (fetchUserProfile falhou ou bloqueou).");
         return;
     }
 
-    // 2. [NOVO V13] Busca as configurações gerais (APENAS se for master) e aplica-as
+    // 2. Busca as configurações gerais (Lógica V14.3 inalterada)
     if (window.currentUserProfile.role === 'master') {
         try {
-            console.log("Dashboard (V13): Buscando configurações gerais...");
-            // Usa apiRequest para buscar settings (já tem cache busting)
+            console.log("Dashboard (V14.4): Buscando configurações gerais...");
             const settings = await apiRequest('/api/settings/general');
             if (settings) {
-                 window.systemSettings = settings; // Guarda globalmente
-                 applyVisualSettings(settings); // Aplica nome, logo, cor
-                 console.log("Dashboard (V13): Configurações visuais aplicadas.");
+                 window.systemSettings = settings; 
+                 applyVisualSettings(settings); 
+                 console.log("Dashboard (V14.4): Configurações visuais aplicadas.");
             } else {
-                 console.warn("Dashboard (V13): Configurações gerais não retornadas pela API.");
-                 window.systemSettings = {}; // Define como vazio para evitar erros
-                  // Aplica visuais padrão se settings falharem (opcional)
-                 // applyVisualSettings({ company_name: 'Painel Admin', primary_color: '#4299e1' });
+                 console.warn("Dashboard (V14.4): Configurações gerais não retornadas pela API.");
+                 window.systemSettings = {}; 
             }
         } catch (settingsError) {
-            console.error("Dashboard (V13): Erro ao buscar/aplicar configurações gerais:", settingsError);
-            window.systemSettings = {}; // Define como vazio em caso de erro
-             // Mostra um erro não bloqueante na consola ou UI se necessário
-            // Aplica visuais padrão se settings falharem (opcional)
-            // applyVisualSettings({ company_name: 'Painel Admin', primary_color: '#4299e1' });
+            console.error("Dashboard (V14.4): Erro ao buscar/aplicar configurações gerais:", settingsError);
+            window.systemSettings = {}; 
         }
     } else {
-         console.log("Dashboard (V13): Utilizador não é master, pulando busca de settings gerais.");
-         window.systemSettings = {}; // Define como vazio para não masters
-         // Aplica visuais padrão para não master (opcional)
-         // applyVisualSettings({ company_name: 'Painel Admin', primary_color: '#4299e1' });
+         console.log("Dashboard (V14.4): Utilizador não é master, pulando busca de settings gerais.");
+         window.systemSettings = {}; 
     }
 
-    // 3. [MOVIDO V13] Aplica permissões ao menu DEPOIS de carregar perfil e settings
-    //    Garante que currentUserProfile existe porque profileOK é true
-    applyMenuPermissions(window.currentUserProfile.role);
+    // 3. [ATUALIZADO V14] Aplica permissões ao menu
+    applyMenuPermissions();
 
 
-    // 4. Carrega a página inicial
-    console.log("Dashboard (V13): Carregando página inicial 'admin_home'...");
+    // 4. Carrega a página inicial (Lógica V14.3 inalterada)
+    console.log("Dashboard (V14.4): Carregando página inicial 'admin_home'...");
     const homeLink = document.querySelector('.sidebar-nav .nav-item[data-page="admin_home"]');
     if (homeLink) {
         loadPage('admin_home', homeLink);
     } else {
-        console.error("Link 'admin_home' (V13) não encontrado!");
+        console.error("Link 'admin_home' (V14.4) não encontrado!");
         loadPage('admin_home', null); // Tenta carregar mesmo assim
     }
 
-    console.log("Dashboard (V13): Inicialização concluída com sucesso.");
+    console.log("Dashboard (V14.4): Inicialização concluída com sucesso.");
 }); // Fim do DOMContentLoaded
 
