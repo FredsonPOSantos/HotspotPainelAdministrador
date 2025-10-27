@@ -1,6 +1,6 @@
 // Ficheiro: backend/routes/permissions.js
 // Descrição: Define as rotas para a gestão de funções e permissões.
-// [ATUALIZADO - Fase 3.1 GESTÃO]
+// [ATUALIZADO - Fase 3.1 GESTÃO BATCH]
 
 const express = require('express');
 const router = express.Router();
@@ -14,7 +14,7 @@ const permissionsController = require('../controllers/permissionsController');
 
 // --- ROTA PARA OBTER A MATRIZ DE PERMISSÕES ---
 // GET /api/permissions/matrix
-// Acessível por 'master' (para ver e editar) e 'DPO' (apenas para ver/auditar)
+// (Inalterado)
 router.get(
     '/matrix',
     verifyToken, // Garante que o utilizador está logado
@@ -22,14 +22,15 @@ router.get(
     permissionsController.getPermissionsMatrix // Chama a função do controller
 );
 
-// --- [NOVA ROTA] ROTA PARA ATUALIZAR UMA PERMISSÃO ---
-// POST /api/permissions/update
+// --- [ROTA ATUALIZADA] ROTA PARA ATUALIZAR PERMISSÕES EM LOTE ---
+// POST /api/permissions/update-batch
 // Acessível APENAS por 'master'
 router.post(
-    '/update',
+    '/update-batch', // Rota alterada para refletir a ação em lote
     verifyToken,
     checkRole(['master']), // Apenas master pode editar
-    permissionsController.updatePermission // Nova função no controller
+    permissionsController.updatePermissionsBatch // Nova função no controller
 );
 
 module.exports = router;
+

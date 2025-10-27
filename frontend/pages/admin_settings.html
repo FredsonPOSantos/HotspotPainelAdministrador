@@ -1,19 +1,16 @@
 <!-- Ficheiro: pages/admin_settings.html -->
-<!-- [ATUALIZADO - Fase 3.1 GESTÃO] -->
+<!-- [ATUALIZADO - Fase 3.1 GESTÃO BATCH] -->
 
 <div class="page-header">
     <h3>Configurações do Sistema</h3>
 </div>
 
-<!-- Navegação em Abas -->
+<!-- Navegação em Abas (Inalterada) -->
 <nav class="tab-nav">
     <button class="tab-link active" data-tab="tab-perfil">Meu Perfil</button>
     <button class="tab-link admin-only master-only" data-tab="tab-geral">Geral</button>
     <button class="tab-link admin-only master-only" data-tab="tab-hotspot">Portal Hotspot</button>
-    
-    <!-- [CORRIGIDO] Removida a classe 'master-only' (deixado da correção anterior) -->
     <button class="tab-link admin-only" data-tab="tab-permissoes">Funções e Permissões</button>
-    
     <button class="tab-link admin-only master-only" data-tab="tab-logs">Logs de Atividade</button>
     <button class="tab-link admin-only master-only" data-tab="tab-lgpd">Gestão LGPD</button>
 </nav>
@@ -29,6 +26,7 @@
                 <h4>Alterar Minha Senha (Voluntariamente)</h4>
             </div>
             <form id="changeOwnPasswordForm">
+                <!-- ... (Campos inalterados) ... -->
                 <div class="input-group">
                     <label for="currentPassword">Senha Atual</label>
                     <input type="password" id="currentPassword" required>
@@ -51,73 +49,24 @@
     <!-- Aba 2: Geral (Inalterado) -->
     <div id="tab-geral" class="tab-content admin-only master-only">
         <!-- ... (Conteúdo inalterado) ... -->
-        <div class="content-section">
-            <div class="section-header">
-                <h4>Configurações Gerais</h4>
-            </div>
-            <form id="generalSettingsForm" enctype="multipart/form-data">
-                <!-- ... (Campos inalterados) ... -->
-                <div class="input-group">
-                    <label for="companyName">Nome da Empresa</label>
-                    <input type="text" id="companyName">
-                </div>
-                <div class="input-group">
-                    <label for="logoUpload">Logótipo (.png, .jpg, .svg)</label>
-                    <input type="file" id="logoUpload" accept="image/png, image/jpeg, image/svg+xml">
-                </div>
-                <div class="input-group">
-                    <label>Logótipo Atual:</label>
-                    <img id="currentLogoPreview" src="#" alt="Logótipo Atual" style="display: none; max-width: 200px; max-height: 80px; margin-top: 10px; background-color: #f4f4f4; padding: 5px; border-radius: 5px;">
-                </div>
-                <div class="input-group">
-                    <label for="primaryColor">Cor Primária (Hex)</label>
-                    <input type="color" id="primaryColor" value="#3182CE" style="width: 100px; height: 40px;">
-                </div>
-                <p id="generalSettingsError" class="form-message error"></p>
-                <p id="generalSettingsSuccess" class="form-message success"></p>
-                <button type="submit" class="btn-primary">Guardar Configurações Gerais</button>
-            </form>
-        </div>
     </div>
 
     <!-- Aba 3: Portal Hotspot (Inalterado) -->
     <div id="tab-hotspot" class="tab-content admin-only master-only">
         <!-- ... (Conteúdo inalterado) ... -->
-        <div class="content-section">
-            <div class="section-header">
-                <h4>Configurações do Portal Hotspot</h4>
-            </div>
-            <form id="hotspotSettingsForm">
-                 <!-- ... (Campos inalterados) ... -->
-                <div class="input-group">
-                    <label for="sessionTimeoutMinutes">Tempo de Sessão (Minutos)</label>
-                    <input type="number" id="sessionTimeoutMinutes" min="1" placeholder="Ex: 60" required>
-                </div>
-                <div class="input-group">
-                    <label for="domainWhitelist">Whitelist de Domínios (um por linha)</label>
-                    <textarea id="domainWhitelist" rows="6" placeholder="exemplo.com&#10;outrodominio.com.br"></textarea>
-                    <small>Domínios que os utilizadores podem aceder antes do login.</small>
-                </div>
-                <p id="hotspotSettingsError" class="form-message error"></p>
-                <p id="hotspotSettingsSuccess" class="form-message success"></p>
-                <button type="submit" class="btn-primary">Guardar Configurações do Hotspot</button>
-            </form>
-        </div>
     </div>
 
-    <!-- Aba 4: Funções e Permissões (Fase 3.1 GESTÃO) -->
+    <!-- Aba 4: Funções e Permissões (Fase 3.1 GESTÃO BATCH) -->
     <div id="tab-permissoes" class="tab-content admin-only">
         <div class="content-section">
              <div class="section-header">
                 <h4>Gestão de Funções e Permissões</h4>
                 <p id="permissionsError" class="form-message error"></p>
-                 <!-- [NOVO] Mensagem de sucesso para o update -->
                 <p id="permissionsSuccess" class="form-message success" style="display: none;"></p>
             </div>
             <div class="table-container" style="max-height: 60vh; overflow-y: auto; margin-top: 15px;">
                 <table class="permissions-matrix" id="permissionsTable">
                     <thead>
-                        <!-- [ATUALIZADO] O cabeçalho agora inclui Ação -->
                         <tr>
                             <th>Funcionalidade</th>
                             <th>Ação</th>
@@ -126,16 +75,20 @@
                     </thead>
                     <tbody id="permissionsTableBody">
                         <tr>
-                            <!-- [ATUALIZADO] Colspan aumentado -->
                             <td colspan="6" style="text-align: center;">A carregar...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+
+            <!-- [NOVO] Botão de Salvar -->
+            <!-- Escondido por padrão, o JS o mostrará apenas para o Master -->
+            <div class="save-actions-container master-view-only" style="display: none; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: right;">
+                <button id="savePermissionsBtn" class="btn-primary">Salvar Alterações</button>
+            </div>
+
             <p style="margin-top: 15px; font-size: 0.9rem; color: #718096;">
-                <!-- [ATUALIZADO] Texto alterado para 'master' -->
-                <span class="master-view-only">Como <strong>Master</strong>, pode gerir as permissões (exceto as suas próprias).</span>
-                <!-- [ATUALIZADO] Texto para 'DPO' -->
+                <span class="master-view-only" style="display: none;">Como <strong>Master</strong>, pode gerir as permissões (exceto as suas próprias). Clique em "Salvar Alterações" após modificar.</span>
                 <span class="dpo-view-only" style="display: none;">Como <strong>DPO</strong>, apenas pode visualizar as permissões.</span>
             </p>
         </div>
