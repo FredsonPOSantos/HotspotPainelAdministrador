@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Rota Hotspot Admin</title>
+    <!-- [CORRETO] Apontado para o CSS do Dashboard (tema escuro) -->
+    <link rel="stylesheet" href="css/admin_style.css"> 
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Biblioteca para exportação para Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- Estilos inline (mantidos da sua versão anterior) -->
+    <style>
+        .sidebar-nav .nav-title {
+            padding: 10px 24px 5px; /* Ajustado padding */
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #a0aec0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 15px; /* Aumentado espaço */
+        }
+        .sidebar-nav .nav-title:first-of-type {
+             margin-top: 0;
+         }
+        /* Garante que itens escondidos pelo JS não ocupem espaço */
+        [style*="display: none"] { display: none !important; }
+    </style>
+</head>
+
+<!-- 
+    [CORREÇÃO V13.2] 
+    Adiciona a classe 'dashboard-body' para ativar o layout flexbox (display: flex) 
+    definido no admin_style.css (V13.3), corrigindo o layout quebrado.
+-->
+<body class="dashboard-body"> 
+
+    <aside class="sidebar">
+        <!-- 
+            [CORREÇÃO V13.3] 
+            A ordem do header, nav e footer é agora controlada pelo CSS (V13.3) 
+            usando 'flex-order', corrigindo a posição do rodapé.
+        -->
+        
+        <!-- Logótipo e Nome da Empresa -->
+        <div class="sidebar-header">
+            <img src="" alt="Logótipo" id="sidebarLogo" style="display: none;"> <!-- V13: JS controla -->
+            <h2>Painel Admin</h2> <!-- V13: Fallback se não houver logo -->
+        </div>
+
+        <!-- Rodapé (Informações do Utilizador) -->
+        <div class="sidebar-footer">
+            <span id="userName">A carregar...</span>
+            <span id="userRole"></span>
+            <button id="logoutButton">Sair</button>
+        </div>
+
+        <!-- Navegação Principal -->
+        <nav class="sidebar-nav">
+            <!-- Título da Secção: Principal -->
+            <div class="nav-title">Principal</div>
+            <a href="#" class="nav-item active" data-page="admin_home">
+                <span>🏠</span> Dashboard
+            </a>
+            <a href="#" class="nav-item" data-page="admin_hotspot">
+                <span>📶</span> Relatório Hotspot
+            </a>
+            
+            <!-- Título da Secção: Marketing -->
+            <div class="nav-title">Marketing</div>
+            <a href="#" class="nav-item admin-only" data-page="admin_campaigns"> <!-- V13: Usa admin-only -->
+                <span>🎯</span> Campanhas
+            </a>
+            <a href="#" class="nav-item admin-only" data-page="admin_templates"> <!-- V13: Usa admin-only -->
+                <span>🎨</span> Templates
+            </a>
+            <a href="#" class="nav-item admin-only" data-page="admin_banners"> <!-- V13: Usa admin-only -->
+                <span>📢</span> Banners
+            </a>
+
+            <!-- Título da Secção: Gestão -->
+            <div class="nav-title">Gestão</div>
+            <a href="#" class="nav-item admin-only" data-page="admin_routers"> <!-- V13: Usa admin-only -->
+                <span>📡</span> Roteadores
+            </a>
+            <a href="#" class="nav-item admin-only" data-page="admin_users"> <!-- V13: Usa admin-only -->
+                <span>👥</span> Utilizadores
+            </a>
+            <a href="#" class="nav-item admin-only" data-page="admin_settings"> <!-- V13: Usa admin-only -->
+                <span>⚙️</span> Configurações
+            </a>
+        </nav>
+
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="main-content">
+        <!-- Cabeçalho do Conteúdo -->
+        <header class="main-header">
+            <h1 id="pageTitle">Dashboard</h1>
+        </header>
+
+        <!-- Área onde o conteúdo das páginas (home, users, etc.) será carregado -->
+        <section class="content-area">
+            <!-- Conteúdo carregado dinamicamente aqui -->
+        </section>
+    </main>
+
+    <!-- Modal Global: Forçar Troca de Senha -->
+    <div id="forceChangePasswordModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3>Troca de Senha Obrigatória</h3>
+            <p style="margin: 10px 0; color: var(--text-secondary); font-size: 0.9rem;">
+                A sua senha foi redefinida por um administrador. Por favor, crie uma nova senha segura para continuar.
+            </p>
+            <form id="forceChangePasswordForm" style="margin-top: 20px;">
+                <div class="input-group">
+                    <label for="currentTemporaryPassword">Senha Temporária (Atual)</label>
+                    <input type="password" id="currentTemporaryPassword" required>
+                </div>
+                <div class="input-group">
+                    <label for="newPassword">Nova Senha (mín. 6 caracteres)</label>
+                    <input type="password" id="newPassword" required minlength="6">
+                </div>
+                <p id="forceChangePasswordError" class="form-message error"></p>
+                <p id="forceChangePasswordSuccess" class="form-message success"></p>
+                <div class="modal-actions" style="margin-top: 20px;">
+                    <button type="submit" class="btn-primary">Alterar Senha e Desbloquear</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts das páginas individuais (carregados pelo dashboard.js) -->
+    <script src="js/admin_home.js"></script>
+    <script src="js/admin_hotspot.js"></script>
+    <script src="js/admin_users.js"></script>
+    <script>
+        // Garante que o script da página específica seja chamado após o carregamento do conteúdo
+        if (window.initUsersPage) {
+            window.initUsersPage();
+        }
+    </script>
+    <script src="js/admin_templates.js"></script>
+    <script src="js/admin_banners.js"></script>
+    <script src="js/admin_campaigns.js"></script>
+    <script src="js/admin_routers.js"></script>
+    <script src="js/admin_settings.js"></script>
+
+    <!-- Script "Maestro" - Carregado por último -->
+    <script src="js/admin_dashboard.js"></script> 
+</body>
+</html>
+
