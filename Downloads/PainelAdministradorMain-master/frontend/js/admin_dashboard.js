@@ -103,17 +103,20 @@ const apiRequest = async (endpoint, method = 'GET', body = null) => {
 
 
 // [NOVO V13.1] Função para aplicar configurações visuais (Nome, Logo, Cor)
-const applyVisualSettings = (settings) => {
+window.applyVisualSettings = (settings) => {
     if (!settings) {
-        console.warn("applyVisualSettings (V13.1.3): Configurações não fornecidas.");
+        console.warn("applyVisualSettings: Configurações não fornecidas.");
         return;
     }
-    console.log("applyVisualSettings (V13.1.3): Aplicando configurações...", settings);
+    console.log("applyVisualSettings: Aplicando configurações...", settings);
 
     // 1. Nome da Empresa
     const sidebarTitle = document.querySelector('.sidebar-header h2');
-    if (sidebarTitle && settings.company_name) {
+    if (sidebarTitle) {
+        console.log(`applyVisualSettings: Encontrado sidebarTitle. Alterando de '${sidebarTitle.textContent}' para '${settings.company_name}'`);
         sidebarTitle.textContent = settings.company_name;
+    } else {
+        console.error('applyVisualSettings: Elemento .sidebar-header h2 não encontrado.');
     }
 
     // 2. Logótipo
@@ -121,45 +124,36 @@ const applyVisualSettings = (settings) => {
     if (sidebarLogo) {
         if (settings.logo_url) {
             const API_ADMIN_URL = `http://${window.location.hostname}:3000`;
-            // Garante que o caminho é relativo à raiz
             const logoPath = settings.logo_url.startsWith('/') ? settings.logo_url : '/' + settings.logo_url;
-            sidebarLogo.src = `${API_ADMIN_URL}${logoPath}?t=${Date.now()}`; // Cache busting
+            const newLogoSrc = `${API_ADMIN_URL}${logoPath}?t=${Date.now()}`;
+            console.log(`applyVisualSettings: Encontrado sidebarLogo. Alterando src para '${newLogoSrc}'`);
+            sidebarLogo.src = newLogoSrc;
             sidebarLogo.alt = settings.company_name || "Logótipo";
             sidebarLogo.style.display = 'block';
-            
-            // [V13.1.1] Correção visual para layout quebrado (caso CSS falhe)
-            sidebarLogo.style.maxHeight = '50px';
-            sidebarLogo.style.width = 'auto';
-            sidebarLogo.style.marginBottom = '10px';
-            
-            if (sidebarTitle) sidebarTitle.style.display = 'none'; // Esconde o texto se o logo existir
+            if (sidebarTitle) sidebarTitle.style.display = 'none';
         } else {
-            sidebarLogo.style.display = 'none'; // Esconde o logo se não houver URL
+            console.log('applyVisualSettings: logo_url está vazio. Escondendo o logo.');
+            sidebarLogo.style.display = 'none';
             sidebarLogo.src = '#';
-            if (sidebarTitle) sidebarTitle.style.removeProperty('display'); // Mostra o texto
+            if (sidebarTitle) sidebarTitle.style.removeProperty('display');
         }
+    } else {
+        console.error('applyVisualSettings: Elemento #sidebarLogo não encontrado.');
     }
 
     // 3. Cor Primária (Variável CSS)
     if (settings.primary_color) {
+        console.log(`applyVisualSettings: Alterando --primary-color para '${settings.primary_color}'`);
         document.documentElement.style.setProperty('--primary-color', settings.primary_color);
-        // Tenta calcular uma cor mais escura para o hover/active
+        // ... (cálculo da cor escura)
+        // Lógica para calcular uma cor mais escura para o gradiente
         try {
-             let darkerColor = settings.primary_color;
-             // Lógica simples para escurecer (pode ser melhorada)
-             if (settings.primary_color.startsWith('#') && settings.primary_color.length === 7) {
-                 let r = parseInt(settings.primary_color.substring(1, 3), 16);
-                 let g = parseInt(settings.primary_color.substring(3, 5), 16);
-                 let b = parseInt(settings.primary_color.substring(5, 7), 16);
-                 r = Math.max(0, r - 30).toString(16).padStart(2, '0');
-                 g = Math.max(0, g - 30).toString(16).padStart(2, '0');
-                 b = Math.max(0, b - 30).toString(16).padStart(2, '0');
-                 darkerColor = `#${r}${g}${b}`;
-             }
-             document.documentElement.style.setProperty('--primary-color-dark', darkerColor);
+            const color = tinycolor(settings.primary_color);
+            const darkerColor = color.darken(15).toString(); // Escurece em 15%
+            document.documentElement.style.setProperty('--primary-color-dark', darkerColor);
+            console.log(`applyVisualSettings: Alterando --primary-color-dark para '${darkerColor}'`);
         } catch (colorError) {
-             console.error("Erro ao calcular cor escura:", colorError);
-             document.documentElement.style.setProperty('--primary-color-dark', settings.primary_color); // Fallback
+            console.error("applyVisualSettings: Erro ao calcular cor escura para gradiente:", colorError);
         }
     }
 };
@@ -524,26 +518,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // 2. Busca as configurações gerais (apenas se for master)
-    if (window.currentUserProfile.role === 'master') {
-        try {
-            console.log("Dashboard (V13.1.3): Buscando configurações gerais...");
-            const settings = await apiRequest('/api/settings/general');
-            if (settings) {
-                 window.systemSettings = settings; 
-                 applyVisualSettings(settings); // Aplica nome, logo e cor
-                 console.log("Dashboard (V13.1.3): Configurações visuais aplicadas.");
-            } else {
-                 console.warn("Dashboard (V13.1.3): Configurações gerais não retornadas pela API.");
-                 window.systemSettings = {}; 
-            }
-        } catch (settingsError) {
-            console.error("Dashboard (V13.1.3): Erro ao buscar/aplicar configurações gerais:", settingsError);
-            window.systemSettings = {}; 
+    // 2. Busca as configurações gerais
+    try {
+        console.log("Dashboard (V13.1.3): Buscando configurações gerais...");
+        const settings = await apiRequest('/api/settings/general');
+        if (settings) {
+             window.systemSettings = settings; 
+             applyVisualSettings(settings); // Aplica nome, logo e cor
+             console.log("Dashboard (V13.1.3): Configurações visuais aplicadas.");
+        } else {
+             console.warn("Dashboard (V13.1.3): Configurações gerais não retornadas pela API.");
+             window.systemSettings = {}; 
         }
-    } else {
-         console.log("Dashboard (V13.1.3): Utilizador não é master, pulando busca de settings gerais.");
-         window.systemSettings = {}; 
+    } catch (settingsError) {
+        console.error("Dashboard (V13.1.3): Erro ao buscar/aplicar configurações gerais:", settingsError);
+        window.systemSettings = {}; 
     }
 
     // 3. [LÓGICA V13.6.1] Aplica permissões ao menu

@@ -78,7 +78,7 @@ if (window.initBannersPage) {
                 
                 return result.imageUrl;
             } catch (error) {
-                alert(`Erro no upload: ${error.message}`);
+                showNotification(`Erro no upload: ${error.message}`, 'error');
                 return null;
             }
         };
@@ -97,7 +97,7 @@ if (window.initBannersPage) {
             }
 
             if (!imageUrl) {
-                alert('Por favor, forneça uma imagem (via upload ou URL).');
+                showNotification('Por favor, forneça uma imagem (via upload ou URL).', 'error');
                 return;
             }
             
@@ -115,22 +115,23 @@ if (window.initBannersPage) {
 
             try {
                 const result = await apiRequest(endpoint, method, bannerData);
-                alert(result.message);
+                showNotification(result.message, 'success');
                 closeModal();
                 loadBanners();
             } catch (error) {
-                alert(`Erro: ${error.message}`);
+                showNotification(`Erro: ${error.message}`, 'error');
             }
         };
 
         const handleDelete = async (bannerId) => {
-            if (confirm(`Tem a certeza de que deseja eliminar o banner com ID ${bannerId}?`)) {
+            const confirmed = await showConfirmationModal(`Tem a certeza de que deseja eliminar o banner com ID ${bannerId}?`);
+            if (confirmed) {
                 try {
                     const result = await apiRequest(`/api/banners/${bannerId}`, 'DELETE');
-                    alert(result.message);
+                    showNotification(result.message, 'success');
                     loadBanners();
                 } catch (error) {
-                    alert(`Erro: ${error.message}`);
+                    showNotification(`Erro: ${error.message}`, 'error');
                 }
             }
         };
@@ -157,7 +158,7 @@ if (window.initBannersPage) {
                 const banners = await apiRequest('/api/banners');
                 const banner = banners.find(b => b.id === bannerId);
                 if (!banner) {
-                    alert('Banner não encontrado.');
+                    showNotification('Banner não encontrado.', 'error');
                     return;
                 }
 
@@ -177,7 +178,7 @@ if (window.initBannersPage) {
 
                 modal.classList.remove('hidden');
             } catch (error) {
-                alert(`Erro ao carregar dados do banner: ${error.message}`);
+                showNotification(`Erro ao carregar dados do banner: ${error.message}`, 'error');
             }
         };
 

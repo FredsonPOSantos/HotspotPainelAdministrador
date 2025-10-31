@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Adiciona a senha apenas se for um novo utilizador ou se uma nova senha for digitada
                 if (!userId || password) {
                     if (password && password.length < 6) {
-                         alert("A senha deve ter pelo menos 6 caracteres.");
+                         showNotification("A senha deve ter pelo menos 6 caracteres.", 'warning');
                          return;
                     }
                     userData.password = password;
@@ -200,22 +200,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     // O backend (controller) já tem a lógica para impedir 'gestao' de alterar campos que não deve
                     const result = await apiRequest(endpoint, method, userData);
-                    alert(result.message);
+                    showNotification(result.message, 'success');
                     closeModal(userModal);
-                    loadUsers(); // Recarrega a lista
                 } catch (error) {
-                    alert(`Erro: ${error.message}`);
+                    showNotification(`Erro: ${error.message}`, 'error');
                 }
             };
 
             const handleDelete = async (userId) => {
-                if (confirm(`Tem a certeza de que deseja eliminar o utilizador com ID ${userId}?`)) {
+                const confirmed = await showConfirmationModal(`Tem a certeza de que deseja eliminar o utilizador com ID ${userId}?`);
+                if (confirmed) {
                     try {
                         const result = await apiRequest(`/api/admin/users/${userId}`, 'DELETE');
-                        alert(result.message);
+                        showNotification(result.message, 'success');
                         loadUsers(); // Recarrega a lista
                     } catch (error) {
-                        alert(`Erro: ${error.message}`);
+                        showNotification(`Erro: ${error.message}`, 'error');
                     }
                 }
             };
@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
                      const user = users.find(u => u.id == userId);
                      
                      if (!user) {
-                        alert("Erro: Utilizador não encontrado.");
+                        showNotification("Erro: Utilizador não encontrado.", 'error');
                         return;
                      }
 
@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     userModal.classList.remove('hidden');
                     
                 } catch (error) {
-                    alert(`Erro ao buscar dados do utilizador: ${error.message}`);
+                    showNotification(`Erro ao buscar dados do utilizador: ${error.message}`, 'error');
                 }
             };
 
@@ -305,16 +305,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const newPassword = document.getElementById('newPassword').value;
                 
                 if (newPassword.length < 6) {
-                    alert("A nova senha deve ter pelo menos 6 caracteres.");
+                    showNotification("A nova senha deve ter pelo menos 6 caracteres.", 'warning');
                     return;
                 }
                 
                 try {
                     const result = await apiRequest(`/api/admin/users/${userId}/reset-password`, 'POST', { newPassword });
-                    alert(result.message);
+                    showNotification(result.message, 'success');
                     closeModal(resetPasswordModal);
                 } catch (error) {
-                    alert(`Erro: ${error.message}`);
+                    showNotification(`Erro: ${error.message}`, 'error');
                 }
             };
 

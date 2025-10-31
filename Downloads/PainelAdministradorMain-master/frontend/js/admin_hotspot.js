@@ -80,7 +80,7 @@ if (window.initHotspotPage) {
                 // Este erro não deve mais acontecer para 'estetica', pois evitamos a chamada
                 console.error("Erro ao popular filtros:", error);
                 if (!error.message.includes("Acesso negado")) {
-                    alert("Não foi possível carregar os filtros. Tente recarregar a página.");
+                    showNotification("Não foi possível carregar os filtros. Tente recarregar a página.", 'error');
                 }
             }
         };
@@ -152,7 +152,7 @@ if (window.initHotspotPage) {
 
         const exportToCSV = () => {
             if (currentResults.length === 0) {
-                alert("Não há dados para exportar.");
+                showNotification("Não há dados para exportar.", 'error');
                 return;
             }
             const headers = Object.keys(currentResults[0]);
@@ -173,12 +173,12 @@ if (window.initHotspotPage) {
         
         const exportToXLSX = () => {
              if (currentResults.length === 0) {
-                alert("Não há dados para exportar.");
+                showNotification("Não há dados para exportar.", 'error');
                 return;
             }
             // A biblioteca SheetJS (xlsx) deve estar carregada no HTML principal
             if(typeof XLSX === 'undefined') {
-                alert("Erro: A biblioteca de exportação para Excel não foi carregada.");
+                showNotification("Erro: A biblioteca de exportação para Excel não foi carregada.", 'error');
                 return;
             }
             const worksheet = XLSX.utils.json_to_sheet(currentResults);

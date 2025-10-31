@@ -82,23 +82,23 @@ if (window.initCampaignsPage) {
             const endpoint = campaignId ? `/api/campaigns/${campaignId}` : '/api/campaigns';
 
             try {
-                const result = await apiRequest(endpoint, method, campaignData);
-                alert(result.message);
+                showNotification(result.message, 'success');
                 closeModal();
                 loadCampaigns();
             } catch (error) {
-                alert(`Erro: ${error.message}`);
+                showNotification(`Erro: ${error.message}`, 'error');
             }
         };
 
         const handleDelete = async (campaignId, campaignName) => {
-            if (confirm(`Tem a certeza de que deseja eliminar a campanha "${campaignName}" (ID: ${campaignId})?`)) {
+            const confirmed = await showConfirmationModal(`Tem a certeza de que deseja eliminar a campanha "${campaignName}" (ID: ${campaignId})?`);
+            if (confirmed) {
                 try {
                     const result = await apiRequest(`/api/campaigns/${campaignId}`, 'DELETE');
-                    alert(result.message);
+                    showNotification(result.message, 'success');
                     loadCampaigns();
                 } catch (error) {
-                    alert(`Erro: ${error.message}`);
+                    showNotification(`Erro: ${error.message}`, 'error');
                 }
             }
         };

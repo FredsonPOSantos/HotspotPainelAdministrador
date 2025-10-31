@@ -75,22 +75,23 @@ if (window.initTemplatesPage) {
             const endpoint = templateId ? `/api/templates/${templateId}` : '/api/templates';
             try {
                 const result = await apiRequest(endpoint, method, templateData);
-                alert(result.message);
+                showNotification(result.message, 'success');
                 closeModal();
                 loadTemplates();
             } catch (error) {
-                alert(`Erro: ${error.message}`);
+                showNotification(`Erro: ${error.message}`, 'error');
             }
         };
 
         const handleDelete = async (templateId, templateName) => {
-            if (confirm(`Tem a certeza de que deseja eliminar o template "${templateName}" (ID: ${templateId})?`)) {
+            const confirmed = await showConfirmationModal(`Tem a certeza de que deseja eliminar o template "${templateName}" (ID: ${templateId})?`);
+            if (confirmed) {
                 try {
                     const result = await apiRequest(`/api/templates/${templateId}`, 'DELETE');
-                    alert(result.message);
+                    showNotification(result.message, 'success');
                     loadTemplates();
                 } catch (error) {
-                    alert(`Erro: ${error.message}`);
+                    showNotification(`Erro: ${error.message}`, 'error');
                 }
             }
         };

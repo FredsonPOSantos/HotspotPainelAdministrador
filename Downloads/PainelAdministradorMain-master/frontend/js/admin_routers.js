@@ -129,23 +129,23 @@ if (window.initRoutersPage) {
             };
             try {
                 const result = await apiRequest(`/api/routers/${routerId}`, 'PUT', routerData);
-                alert(result.message);
+                showNotification(result.message, 'success');
                 routerModal.classList.add('hidden');
-                loadPageData();
             } catch (error) {
-                alert(`Erro: ${error.message}`);
+                showNotification(`Erro: ${error.message}`, 'error');
             }
         };
         
         
         window.handleDeleteRouter = async (routerId) => {
-            if (confirm('Tem a certeza de que deseja eliminar este roteador? Ele será removido de qualquer grupo.')) {
+            const confirmed = await showConfirmationModal('Tem a certeza de que deseja eliminar este roteador? Ele será removido de qualquer grupo.');
+            if (confirmed) {
                 try {
                     const result = await apiRequest(`/api/routers/${routerId}`, 'DELETE');
-                    alert(result.message);
+                    showNotification(result.message, 'success');
                     loadPageData();
                 } catch (error) {
-                    alert(`Erro: ${error.message}`);
+                    showNotification(`Erro: ${error.message}`, 'error');
                 }
             }
         };
@@ -161,7 +161,7 @@ if (window.initRoutersPage) {
             if (rows.length === 0) {
                  checkStatusBtn.disabled = false;
                  checkStatusBtn.textContent = 'Verificar Status';
-                 alert('Nenhum roteador para verificar.');
+                 showNotification('Nenhum roteador para verificar.', 'warning');
                  return;
             }
 
@@ -192,7 +192,7 @@ if (window.initRoutersPage) {
             
             checkStatusBtn.disabled = false;
             checkStatusBtn.textContent = 'Verificar Status';
-            alert('Verificação de status concluída.');
+            showNotification('Verificação de status concluída.', 'success');
         };
 
         // --- Lógica de Deteção Automática ---
@@ -203,7 +203,7 @@ if (window.initRoutersPage) {
                 const discoveredRouterList = document.getElementById('discoveredRouterList');
                 discoveredRouterList.innerHTML = '';
                 if (newRouters.length === 0) {
-                    alert('Nenhum roteador novo foi detetado na rede.');
+                    showNotification('Nenhum roteador novo foi detetado na rede.', 'info');
                     return;
                 }
                 newRouters.forEach(name => {
@@ -217,7 +217,7 @@ if (window.initRoutersPage) {
                 });
                 discoverModal.classList.remove('hidden');
             } catch (error) {
-                alert(`Erro ao verificar novos roteadores: ${error.message}`);
+                showNotification(`Erro ao verificar novos roteadores: ${error.message}`, 'error');
             }
         };
 
@@ -226,17 +226,17 @@ if (window.initRoutersPage) {
             const selectedCheckboxes = discoverModal.querySelectorAll('input[name="routerNames"]:checked');
             const routerNames = Array.from(selectedCheckboxes).map(cb => cb.value);
             if (routerNames.length === 0) {
-                alert('Por favor, selecione pelo menos um roteador para adicionar.');
+                showNotification('Por favor, selecione pelo menos um roteador para adicionar.', 'warning');
                 return;
             }
             try {
                 const result = await apiRequest('/api/routers/batch-add', 'POST', { routerNames });
-                alert(result.message);
+                showNotification(result.message, 'success');
                 discoverModal.classList.add('hidden');
                 loadPageData();
             } catch (error)
  {
-                alert(`Erro ao adicionar roteadores: ${error.message}`);
+                showNotification(`Erro ao adicionar roteadores: ${error.message}`, 'error');
             }
         };
 
@@ -304,11 +304,11 @@ if (window.initRoutersPage) {
             
             try {
                 const result = await apiRequest(endpoint, method, groupData);
-                alert(result.message);
+                showNotification(result.message, 'success');
                 groupModal.classList.add('hidden');
                 loadPageData(); // Recarrega tudo
             } catch (error) {
-                alert(`Erro: ${error.message}`);
+                showNotification(`Erro: ${error.message}`, 'error');
             }
         };
 
@@ -340,13 +340,14 @@ if (window.initRoutersPage) {
         };
 
         window.handleDeleteGroup = async (groupId) => {
-            if (confirm('Tem a certeza de que deseja eliminar este grupo? Os roteadores associados não serão eliminados, ficarão apenas "Sem Grupo".')) {
+            const confirmed = await showConfirmationModal('Tem a certeza de que deseja eliminar este grupo? Os roteadores associados não serão eliminados, ficarão apenas "Sem Grupo".');
+            if (confirmed) {
                 try {
                     const result = await apiRequest(`/api/routers/groups/${groupId}`, 'DELETE');
-                    alert(result.message);
+                    showNotification(result.message, 'success');
                     loadPageData();
                 } catch (error) {
-                    alert(`Erro: ${error.message}`);
+                    showNotification(`Erro: ${error.message}`, 'error');
                 }
             }
         };

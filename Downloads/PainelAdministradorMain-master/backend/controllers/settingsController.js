@@ -38,8 +38,8 @@ const getGeneralSettings = async (req, res) => {
 const updateGeneralSettings = async (req, res) => {
     console.log("updateGeneralSettings: Iniciando atualização...");
     // Dados do formulário (multipart/form-data)
-    const { companyName, primaryColor } = req.body;
-    console.log("updateGeneralSettings: Dados recebidos (body):", { companyName, primaryColor });
+    const { company_name, primary_color } = req.body;
+    console.log("updateGeneralSettings: Dados recebidos (body):", { company_name, primary_color });
     // Dados do ficheiro (do logoUploadMiddleware)
     const newLogoFile = req.file;
     console.log("updateGeneralSettings: Ficheiro recebido (req.file):", newLogoFile ? newLogoFile.filename : "Nenhum");
@@ -53,14 +53,14 @@ const updateGeneralSettings = async (req, res) => {
         let logoUrlForDB = null; // Variável para guardar o URL do logo para o DB
 
         // Adiciona os campos de texto à query, se fornecidos
-        if (companyName !== undefined) { // Permite string vazia
+        if (company_name !== undefined) { // Permite string vazia
             fields.push(`company_name = $${queryIndex++}`);
-            params.push(companyName);
+            params.push(company_name);
         }
-        if (primaryColor) {
+        if (primary_color) {
             // TODO: Adicionar validação se a cor é um formato válido (ex: #RRGGBB)
             fields.push(`primary_color = $${queryIndex++}`);
-            params.push(primaryColor);
+            params.push(primary_color);
         }
 
         // --- Lógica do Logo ---
